@@ -4,4 +4,4 @@ This plugin is the same as the built-in **Word Count** plugin, except when you s
 
 **Note:** This plugin has only been tested with English.
 
-![Better Count Word](https://raw.githubusercontent.com/lukeleppan/obsidian-discordrpc/master/assets/better-word-count.gif)
+![Better Count Word](https://raw.githubusercontent.com/lukeleppan/better-word-count/master/assets/better-word-count.gif)
