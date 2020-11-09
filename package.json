@@ -1,7 +1,7 @@
 {
   "name": "better-word-count",
   "version": "0.1.0",
-  "description": "Counts the words of selected test in the editor.",
+  "description": "Counts the words of selected text in the editor.",
   "main": "main.js",
   "scripts": {
     "dev": "rollup --config rollup.config.js -w",
