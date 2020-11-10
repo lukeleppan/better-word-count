@@ -4,6 +4,7 @@ import { StatusBar } from "./status-bar";
 export default class BetterWordCount extends Plugin {
   public recentlyTyped: boolean;
   public statusBar: StatusBar;
+  public currentFile: TFile;
 
   onload() {
     let statusBarEl = this.addStatusBarItem();
@@ -22,14 +23,7 @@ export default class BetterWordCount extends Plugin {
     this.registerInterval(
       window.setInterval(async () => {
         let activeLeaf = this.app.workspace.activeLeaf;
-        let files: TFile[] = this.app.vault.getMarkdownFiles();
-        let currentFile: TFile;
 
-        files.forEach((file) => {
-          if ((file.basename = activeLeaf.getDisplayText())) {
-            currentFile = file;
-          }
-        });
         if (!activeLeaf || !(activeLeaf.view instanceof MarkdownView)) {
           return;
         }
@@ -40,11 +34,11 @@ export default class BetterWordCount extends Plugin {
           this.updateWordCount(content);
           this.recentlyTyped = false;
         } else if (
-          currentFile &&
-          currentFile.extension === "md" &&
+          this.currentFile &&
+          this.currentFile.extension === "md" &&
           !this.recentlyTyped
         ) {
-          const contents = await this.app.vault.read(currentFile);
+          const contents = await this.app.vault.read(this.currentFile);
           this.updateWordCount(contents);
         } else if (!this.recentlyTyped) {
           this.updateWordCount("");
@@ -63,6 +57,7 @@ export default class BetterWordCount extends Plugin {
   }
 
   async onFileOpen(file: TFile) {
+    this.currentFile = file;
     if (file && file.extension === "md") {
       const contents = await this.app.vault.cachedRead(file);
       this.recentlyTyped = true;
@@ -73,6 +68,7 @@ export default class BetterWordCount extends Plugin {
   }
 
   onQuickPreview(file: TFile, contents: string) {
+    this.currentFile = file;
     const leaf = this.app.workspace.activeLeaf;
     if (leaf && leaf.view.getViewType() === "markdown") {
       this.recentlyTyped = true;
