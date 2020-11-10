@@ -1,9 +1,10 @@
-import { App, MarkdownView, Modal, Plugin, TFile } from "obsidian";
+import { MarkdownView, Plugin, TFile } from "obsidian";
 import { StatusBar } from "./status-bar";
 
 export default class BetterWordCount extends Plugin {
   public recentlyTyped: boolean;
   public statusBar: StatusBar;
+  public currentFile: TFile;
 
   onload() {
     let statusBarEl = this.addStatusBarItem();
@@ -19,6 +20,32 @@ export default class BetterWordCount extends Plugin {
       this.app.workspace.on("quick-preview", this.onQuickPreview, this)
     );
 
+    this.registerInterval(
+      window.setInterval(async () => {
+        let activeLeaf = this.app.workspace.activeLeaf;
+
+        if (!activeLeaf || !(activeLeaf.view instanceof MarkdownView)) {
+          return;
+        }
+
+        let editor = activeLeaf.view.sourceMode.cmEditor;
+        if (editor.somethingSelected()) {
+          let content: string = editor.getSelection();
+          this.updateWordCount(content);
+          this.recentlyTyped = false;
+        } else if (
+          this.currentFile &&
+          this.currentFile.extension === "md" &&
+          !this.recentlyTyped
+        ) {
+          const contents = await this.app.vault.read(this.currentFile);
+          this.updateWordCount(contents);
+        } else if (!this.recentlyTyped) {
+          this.updateWordCount("");
+        }
+      }, 500)
+    );
+
     let activeLeaf = this.app.workspace.activeLeaf;
     let files: TFile[] = this.app.vault.getMarkdownFiles();
 
@@ -30,37 +57,18 @@ export default class BetterWordCount extends Plugin {
   }
 
   async onFileOpen(file: TFile) {
+    this.currentFile = file;
     if (file && file.extension === "md") {
       const contents = await this.app.vault.cachedRead(file);
+      this.recentlyTyped = true;
       this.updateWordCount(contents);
     } else {
       this.updateWordCount("");
     }
-
-    let activeLeaf = this.app.workspace.activeLeaf;
-    if (!activeLeaf || !(activeLeaf.view instanceof MarkdownView)) {
-      return;
-    }
-
-    let editor = activeLeaf.view.sourceMode.cmEditor;
-
-    activeLeaf.view.registerInterval(
-      window.setInterval(async () => {
-        if (editor.somethingSelected()) {
-          let content: string = editor.getSelection();
-          this.updateWordCount(content);
-          this.recentlyTyped = false;
-        } else if (file && file.extension === "md" && !this.recentlyTyped) {
-          const contents = await this.app.vault.cachedRead(file);
-          this.updateWordCount(contents);
-        } else if (!this.recentlyTyped) {
-          this.updateWordCount("");
-        }
-      }, 500)
-    );
   }
 
   onQuickPreview(file: TFile, contents: string) {
+    this.currentFile = file;
     const leaf = this.app.workspace.activeLeaf;
     if (leaf && leaf.view.getViewType() === "markdown") {
       this.recentlyTyped = true;
