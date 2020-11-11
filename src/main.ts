@@ -38,7 +38,7 @@ export default class BetterWordCount extends Plugin {
           this.currentFile.extension === "md" &&
           !this.recentlyTyped
         ) {
-          const contents = await this.app.vault.read(this.currentFile);
+          const contents = await this.app.vault.cachedRead(this.currentFile);
           this.updateWordCount(contents);
         } else if (!this.recentlyTyped) {
           this.updateWordCount("");
