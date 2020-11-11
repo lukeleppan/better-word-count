@@ -50,7 +50,7 @@ export default class BetterWordCount extends Plugin {
     let files: TFile[] = this.app.vault.getMarkdownFiles();
 
     files.forEach((file) => {
-      if ((file.basename = activeLeaf.getDisplayText())) {
+      if (file.basename === activeLeaf.getDisplayText()) {
         this.onFileOpen(file);
       }
     });
