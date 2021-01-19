@@ -1,4 +1,10 @@
-import { MarkdownView, Plugin, TFile, WorkspaceSidedock } from "obsidian";
+import {
+  MarkdownView,
+  Plugin,
+  TFile,
+  MetadataCache,
+  getAllTags,
+} from "obsidian";
 import { BetterWordCountSettingsTab } from "./settings/settings-tab";
 import { BetterWordCountSettings } from "./settings/settings";
 import { StatusBar } from "./status-bar";
@@ -12,6 +18,8 @@ export default class BetterWordCount extends Plugin {
   async onload() {
     let statusBarEl = this.addStatusBarItem();
     this.statusBar = new StatusBar(statusBarEl);
+
+    this.updateAltCount();
 
     this.recentlyTyped = false;
 
@@ -69,7 +77,7 @@ export default class BetterWordCount extends Plugin {
       this.recentlyTyped = true;
       this.updateWordCount(contents);
     } else {
-      this.updateWordCount("");
+      this.updateAltCount();
     }
   }
 
@@ -81,6 +89,13 @@ export default class BetterWordCount extends Plugin {
       this.recentlyTyped = true;
       this.updateWordCount(contents);
     }
+  }
+
+  async updateAltCount() {
+    // Thanks to Eleanor Konik for the alternate count idea.
+    const files = this.app.vault.getFiles().length;
+
+    this.statusBar.displayText(`${files} files`);
   }
 
   updateWordCount(text: string) {
