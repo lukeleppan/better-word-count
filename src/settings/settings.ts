@@ -5,7 +5,7 @@ export class BetterWordCountSettings {
   showCharacters: boolean = true;
   charactersPrefix: string = "";
   charactersSuffix: string = " characters ";
-  showSentences: boolean = true;
+  showSentences: boolean = false;
   sentencesPrefix: string = "";
   sentencesSuffix: string = " sentences";
 }
