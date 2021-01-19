@@ -1,16 +1,22 @@
-import { MarkdownView, Plugin, TFile } from "obsidian";
+import { MarkdownView, Plugin, TFile, WorkspaceSidedock } from "obsidian";
+import { BetterWordCountSettingsTab } from "./settings/settings-tab";
+import { BetterWordCountSettings } from "./settings/settings";
 import { StatusBar } from "./status-bar";
 
 export default class BetterWordCount extends Plugin {
   public recentlyTyped: boolean;
   public statusBar: StatusBar;
   public currentFile: TFile;
+  public settings: BetterWordCountSettings;
 
-  onload() {
+  async onload() {
     let statusBarEl = this.addStatusBarItem();
     this.statusBar = new StatusBar(statusBarEl);
 
     this.recentlyTyped = false;
+
+    this.settings = (await this.loadData()) || new BetterWordCountSettings();
+    this.addSettingTab(new BetterWordCountSettingsTab(this.app, this));
 
     this.registerEvent(
       this.app.workspace.on("file-open", this.onFileOpen, this)
@@ -78,7 +84,7 @@ export default class BetterWordCount extends Plugin {
   }
 
   updateWordCount(text: string) {
-    let words = 0;
+    let words: number = 0;
 
     const matches = text.match(
       /[a-zA-Z0-9_\u0392-\u03c9\u00c0-\u00ff\u0600-\u06ff]+|[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af]+/gm
@@ -102,10 +108,29 @@ export default class BetterWordCount extends Plugin {
       ) || []
     ).length;
 
-    this.statusBar.displayText(
-      `${words} words ` +
-        `${text.length} characters ` +
-        `${sentences} sentences`
-    );
+    let displayText: string = "";
+    if (this.settings.showWords) {
+      displayText =
+        displayText +
+        this.settings.wordsPrefix +
+        words +
+        this.settings.wordsSuffix;
+    }
+    if (this.settings.showCharacters) {
+      displayText =
+        displayText +
+        this.settings.charactersPrefix +
+        text.length +
+        this.settings.charactersSuffix;
+    }
+    if (this.settings.showSentences) {
+      displayText =
+        displayText +
+        this.settings.sentencesPrefix +
+        sentences +
+        this.settings.sentencesSuffix;
+    }
+
+    this.statusBar.displayText(displayText);
   }
 }
