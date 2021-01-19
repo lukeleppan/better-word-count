@@ -94,7 +94,7 @@ export default class BetterWordCount extends Plugin {
       }
     }
 
-    // Thanks to Extract Highlights plugin
+    // Thanks to Extract Highlights plugin and AngelusDomini
     // Also https://stackoverflow.com/questions/5553410
     const sentences: number = (
       (text || "").match(
