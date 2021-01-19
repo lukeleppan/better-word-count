@@ -70,6 +70,7 @@ export default class BetterWordCount extends Plugin {
   onQuickPreview(file: TFile, contents: string) {
     this.currentFile = file;
     const leaf = this.app.workspace.activeLeaf;
+
     if (leaf && leaf.view.getViewType() === "markdown") {
       this.recentlyTyped = true;
       this.updateWordCount(contents);
@@ -93,6 +94,18 @@ export default class BetterWordCount extends Plugin {
       }
     }
 
-    this.statusBar.displayText(`${words} words ` + `${text.length} characters`);
+    // Thanks to Extract Highlights plugin
+    // Also https://stackoverflow.com/questions/5553410
+    const sentences: number = (
+      (text || "").match(
+        /[^.!?\s][^.!?]*(?:[.!?](?!['"]?\s|$)[^.!?]*)*[.!?]?['"]?(?=\s|$)/gm
+      ) || []
+    ).length;
+
+    this.statusBar.displayText(
+      `${words} words ` +
+        `${text.length} characters ` +
+        `${sentences} sentences`
+    );
   }
 }
