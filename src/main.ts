@@ -7,6 +7,12 @@ import {
 } from "obsidian";
 import { BetterWordCountSettingsTab } from "./settings/settings-tab";
 import { BetterWordCountSettings } from "./settings/settings";
+import {
+  getWordCount,
+  getCharacterCount,
+  getSentenceCount,
+  getFilesCount,
+} from "./stats";
 import { StatusBar } from "./status-bar";
 
 export default class BetterWordCount extends Plugin {
@@ -92,57 +98,32 @@ export default class BetterWordCount extends Plugin {
   }
 
   async updateAltCount() {
-    // Thanks to Eleanor Konik for the alternate count idea.
-    const files = this.app.vault.getFiles().length;
+    const files = getFilesCount(this.app.vault.getFiles());
 
     this.statusBar.displayText(`${files} files`);
   }
 
   updateWordCount(text: string) {
-    let words: number = 0;
-
-    const matches = text.match(
-      /[a-zA-Z0-9_\u0392-\u03c9\u00c0-\u00ff\u0600-\u06ff]+|[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af]+/gm
-    );
-
-    if (matches) {
-      for (let i = 0; i < matches.length; i++) {
-        if (matches[i].charCodeAt(0) > 19968) {
-          words += matches[i].length;
-        } else {
-          words += 1;
-        }
-      }
-    }
-
-    // Thanks to Extract Highlights plugin and AngelusDomini
-    // Also https://stackoverflow.com/questions/5553410
-    const sentences: number = (
-      (text || "").match(
-        /[^.!?\s][^.!?]*(?:[.!?](?!['"]?\s|$)[^.!?]*)*[.!?]?['"]?(?=\s|$)/gm
-      ) || []
-    ).length;
-
     let displayText: string = "";
     if (this.settings.showWords) {
       displayText =
         displayText +
         this.settings.wordsPrefix +
-        words +
+        getWordCount(text) +
         this.settings.wordsSuffix;
     }
     if (this.settings.showCharacters) {
       displayText =
         displayText +
         this.settings.charactersPrefix +
-        text.length +
+        getCharacterCount(text) +
         this.settings.charactersSuffix;
     }
     if (this.settings.showSentences) {
       displayText =
         displayText +
         this.settings.sentencesPrefix +
-        sentences +
+        getSentenceCount(text) +
         this.settings.sentencesSuffix;
     }
 
