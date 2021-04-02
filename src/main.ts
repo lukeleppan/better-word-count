@@ -25,12 +25,12 @@ export default class BetterWordCount extends Plugin {
     let statusBarEl = this.addStatusBarItem();
     this.statusBar = new StatusBar(statusBarEl);
 
-    this.updateAltCount();
-
     this.recentlyTyped = false;
 
     this.settings = (await this.loadData()) || new BetterWordCountSettings();
     this.addSettingTab(new BetterWordCountSettingsTab(this.app, this));
+
+    this.updateAltCount();
 
     this.registerEvent(
       this.app.workspace.on("file-open", this.onFileOpen, this)
@@ -100,7 +100,41 @@ export default class BetterWordCount extends Plugin {
   async updateAltCount() {
     const files = getFilesCount(this.app.vault.getFiles());
 
-    this.statusBar.displayText(`${files} files`);
+    let displayText: string = `${files} files `;
+    let allWords = 0;
+    let allCharacters = 0;
+    let allSentences = 0;
+
+    for(const f of this.app.vault.getMarkdownFiles()){
+      let fileContents = await this.app.vault.cachedRead(f);
+      allWords += getWordCount(fileContents);
+      allCharacters += getCharacterCount(fileContents);
+      allSentences += getSentenceCount(fileContents);
+    }
+
+    if (this.settings.showWords) {
+      displayText =
+        displayText +
+        this.settings.wordsPrefix +
+        allWords +
+        this.settings.wordsSuffix;
+    }
+    if (this.settings.showCharacters) {
+      displayText =
+        displayText +
+        this.settings.charactersPrefix +
+        allCharacters +
+        this.settings.charactersSuffix;
+    }
+    if (this.settings.showSentences) {
+      displayText =
+        displayText +
+        this.settings.sentencesPrefix +
+        allSentences +
+        this.settings.sentencesSuffix;
+    }
+
+    this.statusBar.displayText(displayText);
   }
 
   updateWordCount(text: string) {
