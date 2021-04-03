@@ -1,6 +1,6 @@
 {
   "name": "better-word-count",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Counts the words of selected text in the editor.",
   "main": "main.js",
   "scripts": {
