@@ -105,7 +105,7 @@ export default class BetterWordCount extends Plugin {
     let allCharacters = 0;
     let allSentences = 0;
 
-    for(const f of this.app.vault.getMarkdownFiles()){
+    for (const f of this.app.vault.getMarkdownFiles()) {
       let fileContents = await this.app.vault.cachedRead(f);
       allWords += getWordCount(fileContents);
       allCharacters += getCharacterCount(fileContents);

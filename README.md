@@ -21,6 +21,11 @@ Works with all languages.
 - Customization presets
 - More stats
 
+### Contributors
+
+- @leoccyao
+  - Added all word, char, sentence count when not viewing a markdown file.
+
 ### Special Thanks
 
 - @liamcane
