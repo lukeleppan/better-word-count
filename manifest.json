@@ -1,7 +1,7 @@
 {
   "id": "better-word-count",
   "name": "Better Word Count",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Counts the words of selected text in the editor.",
   "author": "Luke Leppan",
   "authorUrl": "https://lukeleppan.com",
