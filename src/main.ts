@@ -1,10 +1,4 @@
-import {
-  MarkdownView,
-  Plugin,
-  TFile,
-  MetadataCache,
-  getAllTags,
-} from "obsidian";
+import { MarkdownView, Plugin, TFile, addIcon, WorkspaceLeaf } from "obsidian";
 import { BetterWordCountSettingsTab } from "./settings/settings-tab";
 import { BetterWordCountSettings } from "./settings/settings";
 import {
@@ -13,15 +7,28 @@ import {
   getSentenceCount,
   getFilesCount,
 } from "./stats";
-import { StatusBar } from "./status-bar";
+import { StatusBar } from "./status/bar";
+import { STATS_ICON, STATS_ICON_NAME, VIEW_TYPE_STATS } from "./constants";
+import StatsView from "./view/view";
+import { DataManager } from "./data/manager";
 
 export default class BetterWordCount extends Plugin {
   public recentlyTyped: boolean;
   public statusBar: StatusBar;
   public currentFile: TFile;
   public settings: BetterWordCountSettings;
+  public view: StatsView;
+  public dataManager: DataManager;
+
+  onunload(): void {
+    this.app.workspace
+      .getLeavesOfType(VIEW_TYPE_STATS)
+      .forEach((leaf) => leaf.detach());
+  }
 
   async onload() {
+    this.dataManager = new DataManager(this.app.vault);
+
     let statusBarEl = this.addStatusBarItem();
     this.statusBar = new StatusBar(statusBarEl);
 
@@ -29,6 +36,8 @@ export default class BetterWordCount extends Plugin {
 
     this.settings = (await this.loadData()) || new BetterWordCountSettings();
     this.addSettingTab(new BetterWordCountSettingsTab(this.app, this));
+
+    addIcon(STATS_ICON_NAME, STATS_ICON);
 
     this.updateAltCount();
 
@@ -38,6 +47,30 @@ export default class BetterWordCount extends Plugin {
 
     this.registerEvent(
       this.app.workspace.on("quick-preview", this.onQuickPreview, this)
+    );
+
+    this.registerEvent(
+      this.app.vault.on(
+        "modify",
+        this.dataManager.onVaultModify,
+        this.dataManager
+      )
+    );
+
+    this.addCommand({
+      id: "show-vault-stats-view",
+      name: "Open view",
+      checkCallback: (checking: boolean) => {
+        if (checking) {
+          return this.app.workspace.getLeavesOfType("vault-stats").length === 0;
+        }
+        this.initLeaf();
+      },
+    });
+
+    this.registerView(
+      VIEW_TYPE_STATS,
+      (leaf: WorkspaceLeaf) => (this.view = new StatsView(leaf))
     );
 
     this.registerInterval(
@@ -74,6 +107,10 @@ export default class BetterWordCount extends Plugin {
         this.onFileOpen(file);
       }
     });
+
+    if (this.app.workspace.layoutReady) {
+      this.initLeaf();
+    }
   }
 
   async onFileOpen(file: TFile) {
@@ -162,5 +199,14 @@ export default class BetterWordCount extends Plugin {
     }
 
     this.statusBar.displayText(displayText);
+  }
+
+  initLeaf(): void {
+    if (this.app.workspace.getLeavesOfType(VIEW_TYPE_STATS).length) {
+      return;
+    }
+    this.app.workspace.getRightLeaf(false).setViewState({
+      type: VIEW_TYPE_STATS,
+    });
   }
 }

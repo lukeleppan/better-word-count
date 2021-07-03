@@ -1,8 +1,11 @@
-import { settings } from "cluster";
-import { PluginSettingTab, Setting } from "obsidian";
-import BetterWordCount from "../main";
+import { App, PluginSettingTab, Setting } from "obsidian";
+import type BetterWordCount from "src/main";
 
 export class BetterWordCountSettingsTab extends PluginSettingTab {
+  constructor(app: App, plugin: BetterWordCount) {
+    super(app, plugin);
+  }
+
   display(): void {
     let { containerEl } = this;
     const plugin: BetterWordCount = (this as any).plugin;
