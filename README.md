@@ -17,11 +17,11 @@ All Optional:
 
 Works with all languages.
 
-#### Coming soon:
+#### TODO:
 
-- Complete Customization
-- Customization presets
-- More stats
+- [ ] add total counts back
+- [ ] more statistic display
+- [ ] add more statistics (make suggestions)
 
 ### Contributors
 

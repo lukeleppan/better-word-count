@@ -1,14 +1,56 @@
+const REGEX: RegExp = /{(.*?)}/g;
 export interface Expression {
-  parsedText: string;
+  parsed: string[];
   vars: number[];
 }
 
-export function parse(text: string): Expression {
-  let parsedText: string;
-  let vars: number[];
+// Could be done smarter but I'm tired
+export function parse(query: string): Expression {
+  let parsed: string[] = [];
+  let vars: number[] = [];
+
+  query.split(REGEX).forEach((s) => {
+    switch (s) {
+      case "word_count":
+        vars.push(0);
+        break;
+      case "character_count":
+        vars.push(1);
+        break;
+      case "sentence_count":
+        vars.push(2);
+        break;
+      case "total_word_count":
+        vars.push(3);
+        break;
+      case "total_character_count":
+        vars.push(4);
+        break;
+      case "total_sentence_count":
+        vars.push(5);
+        break;
+      case "file_count":
+        vars.push(6);
+        break;
+
+      default:
+        parsed.push(s);
+        break;
+    }
+  });
 
   return {
-    parsedText: parsedText,
+    parsed: parsed,
     vars: vars,
   };
 }
+
+const varNames = {
+  word_count: 0,
+  charater_count: 1,
+  sentence_count: 2,
+  total_word_count: 3,
+  total_charater_count: 4,
+  total_sentence_count: 5,
+  file_count: 6,
+};

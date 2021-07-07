@@ -8,25 +8,33 @@ export class DataCollector {
     this.vault = vault;
   }
 
-  async getTotalCount(): Promise<any> {
-    let allWords: number;
+  getTotalWordCount() {
+    let allWords: number = 0;
+    console.log(allWords);
+  }
+
+  async getTotalCharacterCount() {
     let allCharacters: number;
-    let allSentences: number;
-    let allFiles: number;
     for (const f of this.vault.getFiles()) {
       let fileContents = await this.vault.cachedRead(f);
-      allWords += this.getWordCount(fileContents);
       allCharacters += this.getCharacterCount(fileContents);
+    }
+
+    return allCharacters;
+  }
+
+  async getTotalSentenceCount() {
+    let allSentences: number;
+    for (const f of this.vault.getFiles()) {
+      let fileContents = await this.vault.cachedRead(f);
       allSentences += this.getSentenceCount(fileContents);
     }
-    allFiles = this.vault.getFiles().length;
 
-    return {
-      words: allWords,
-      characters: allCharacters,
-      sentences: allSentences,
-      files: allFiles,
-    };
+    return allSentences;
+  }
+
+  async getTotalFileCount() {
+    return this.vault.getFiles().length;
   }
 
   getWordCount(text: string): number {

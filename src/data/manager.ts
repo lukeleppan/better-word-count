@@ -23,7 +23,6 @@ export class DataManager {
       }
 
       this.stats = JSON.parse(await this.vault.adapter.read(".vault-stats"));
-      console.log(this.stats);
       this.getTodayIndex();
 
       this.update();
@@ -74,14 +73,13 @@ export class DataManager {
   }
 
   onVaultModify(file: TAbstractFile) {
-    console.log(this.stats);
     if (!this.stats.history[this.index].modifiedFiles.includes(file.name)) {
-      console.log(this.stats);
-
       this.stats.history[this.index].modifiedFiles.push(file.name);
       this.update();
     }
   }
+
+  change(cm: CodeMirror.Editor) {}
 
   setTotalStats() {}
 }
