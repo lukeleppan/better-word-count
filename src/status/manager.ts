@@ -5,6 +5,7 @@ import {
   getWordCount,
   getCharacterCount,
   getSentenceCount,
+  cleanComments,
 } from "../data/stats";
 import type { StatusBar } from "./bar";
 import { Expression, parse } from "./parse";
@@ -104,13 +105,17 @@ export class BarManager {
 
   cursorActivity(cm: CodeMirror.Editor) {
     if (cm.somethingSelected()) {
-      this.updateStatusBar(cm.getSelection());
+      if (this.settings.countComments) {
+        this.updateStatusBar(cleanComments(cm.getSelection()));
+      } else {
+        this.updateStatusBar(cm.getSelection());
+      }
     } else {
-      this.updateStatusBar(cm.getValue());
+      if (this.settings.countComments) {
+        this.updateStatusBar(cleanComments(cm.getValue()));
+      } else {
+        this.updateStatusBar(cm.getValue());
+      }
     }
   }
-
-  // change(cm: CodeMirror.Editor, changeObj: CodeMirror.EditorChangeLinkedList) {
-  //   this.updateStatusBar(cm.getValue());
-  // }
 }

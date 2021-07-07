@@ -38,6 +38,16 @@ export class BetterWordCountSettingsTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         });
       });
+    new Setting(containerEl)
+      .setName("Count Comments")
+      .setDesc("Turn off if you don't want markdown comments to be counted.")
+      .addToggle((cb: ToggleComponent) => {
+        cb.setValue(this.plugin.settings.countComments);
+        cb.onChange(async (value: boolean) => {
+          this.plugin.settings.countComments = value;
+          await this.plugin.saveSettings();
+        });
+      });
 
     // Status Bar Settings
     containerEl.createEl("h3", { text: "Status Bar Settings" });
