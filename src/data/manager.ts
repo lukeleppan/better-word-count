@@ -1,17 +1,19 @@
 import moment from "moment";
-import type { TAbstractFile, Vault } from "obsidian";
+import type { MetadataCache, TAbstractFile, Vault } from "obsidian";
 import { STATS_FILE } from "src/constants";
 import { DataCollector } from "./collector";
 
 export class DataManager {
   private vault: Vault;
+  private metadataCache: MetadataCache;
   private stats: any;
   private index: number;
   private collector: DataCollector;
 
-  constructor(vault: Vault) {
+  constructor(vault: Vault, metadataCache: MetadataCache) {
     this.vault = vault;
-    this.collector = new DataCollector(vault);
+    this.metadataCache = metadataCache;
+    this.collector = new DataCollector(vault, metadataCache);
 
     this.vault.adapter.exists(".vault-stats").then(async (exists) => {
       if (!exists) {

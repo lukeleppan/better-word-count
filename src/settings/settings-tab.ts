@@ -73,6 +73,10 @@ export class BetterWordCountSettingsTab extends PluginSettingTab {
       .addTextArea((cb: TextAreaComponent) => {
         cb.setPlaceholder("Enter an expression...");
         cb.setValue(this.plugin.settings.statusBarAltQuery);
+        cb.onChange((value: string) => {
+          this.plugin.settings.statusBarAltQuery = value;
+          this.plugin.saveSettings();
+        });
       });
   }
 }

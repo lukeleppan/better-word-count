@@ -1,19 +1,12 @@
-import { MarkdownView, Plugin, TFile, addIcon, WorkspaceLeaf } from "obsidian";
+import { Plugin, TFile, addIcon, WorkspaceLeaf } from "obsidian";
 import { BetterWordCountSettingsTab } from "./settings/settings-tab";
 import { BetterWordCountSettings, DEFAULT_SETTINGS } from "./settings/settings";
-import {
-  getWordCount,
-  getCharacterCount,
-  getSentenceCount,
-  getFilesCount,
-} from "./stats";
 import { StatusBar } from "./status/bar";
 import { STATS_ICON, STATS_ICON_NAME, VIEW_TYPE_STATS } from "./constants";
 import StatsView from "./view/view";
 import { DataManager } from "./data/manager";
 import { BarManager } from "./status/manager";
 import type CodeMirror from "codemirror";
-import { parse } from "./status/parse";
 
 export default class BetterWordCount extends Plugin {
   public statusBar: StatusBar;
@@ -37,11 +30,12 @@ export default class BetterWordCount extends Plugin {
     let statusBarEl = this.addStatusBarItem();
     this.statusBar = new StatusBar(statusBarEl);
 
-    this.dataManager = new DataManager(this.app.vault);
+    this.dataManager = new DataManager(this.app.vault, this.app.metadataCache);
     this.barManager = new BarManager(
       this.statusBar,
       this.settings,
-      this.app.vault
+      this.app.vault,
+      this.app.metadataCache
     );
 
     this.registerEvent(

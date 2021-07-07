@@ -4,7 +4,7 @@ export interface Expression {
   vars: number[];
 }
 
-// Could be done smarter but I'm tired
+// Could be done better
 export function parse(query: string): Expression {
   let parsed: string[] = [];
   let vars: number[] = [];
@@ -31,6 +31,15 @@ export function parse(query: string): Expression {
         break;
       case "file_count":
         vars.push(6);
+        break;
+      case "words_today":
+        vars.push(7);
+        break;
+      case "characters_today":
+        vars.push(8);
+        break;
+      case "sentences_today":
+        vars.push(9);
         break;
 
       default:

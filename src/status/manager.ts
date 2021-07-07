@@ -1,4 +1,4 @@
-import type { Vault } from "obsidian";
+import type { MetadataCache, Vault } from "obsidian";
 import { DataCollector } from "src/data/collector";
 import type { BetterWordCountSettings } from "src/settings/settings";
 import {
@@ -12,16 +12,19 @@ import { Expression, parse } from "./parse";
 export class BarManager {
   private statusBar: StatusBar;
   private settings: BetterWordCountSettings;
+  private vault: Vault;
   private dataCollector: DataCollector;
 
   constructor(
     statusBar: StatusBar,
     settings: BetterWordCountSettings,
-    vault: Vault
+    vault: Vault,
+    metadataCache: MetadataCache
   ) {
     this.statusBar = statusBar;
     this.settings = settings;
-    this.dataCollector = new DataCollector(vault);
+    this.vault = vault;
+    this.dataCollector = new DataCollector(vault, metadataCache);
   }
 
   async updateStatusBar(text: string): Promise<void> {
@@ -42,16 +45,16 @@ export class BarManager {
           newText = newText + getSentenceCount(text);
           break;
         case 3:
-          newText = newText + this.dataCollector.getTotalWordCount();
+          newText = newText + 0;
           break;
         case 4:
-          newText = newText + this.dataCollector.getTotalCharacterCount();
+          newText = newText + 0;
           break;
         case 5:
-          newText = newText + this.dataCollector.getTotalSentenceCount();
+          newText = newText + 0;
           break;
         case 6:
-          newText = newText + this.dataCollector.getTotalFileCount();
+          newText = newText + 0;
           break;
       }
       varsIndex++;
@@ -65,8 +68,9 @@ export class BarManager {
     const expression: Expression = parse(this.settings.statusBarAltQuery);
 
     let varsIndex = 0;
-    expression.parsed.forEach(async (value: string) => {
-      newText = newText + value;
+    for (const i in expression.parsed) {
+      const e = expression.parsed[i];
+      newText = newText + e;
       switch (expression.vars[varsIndex]) {
         case 0:
           newText = newText + getWordCount("");
@@ -86,14 +90,14 @@ export class BarManager {
           break;
         case 5:
           newText =
-            newText + (await this.dataCollector.getTotalSentenceCount());
+            newText + (await this.dataCollector.getTotalCharacterCount());
           break;
         case 6:
-          newText = newText + (await this.dataCollector.getTotalFileCount());
+          newText = newText + this.dataCollector.getTotalFileCount();
           break;
       }
       varsIndex++;
-    });
+    }
 
     this.statusBar.displayText(newText);
   }

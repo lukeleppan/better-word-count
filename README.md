@@ -19,7 +19,6 @@ Works with all languages.
 
 #### TODO:
 
-- [ ] add total counts back
 - [ ] more statistic display
 - [ ] add more statistics (make suggestions)
 
