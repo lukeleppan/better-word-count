@@ -96,5 +96,23 @@ export class BetterWordCountSettingsTab extends PluginSettingTab {
           this.plugin.saveSettings();
         });
       });
+
+    this.containerEl.createEl("p", {
+      text:
+        "Syntax for the status bars works like this: \n" +
+        "- To get a stat input the name of the stat in between `{}` eg. `{word_count}`.\n" +
+        "- All other words remain.\n\n" +
+        "Available Stats:\n" +
+        "- word_count\n" +
+        "- character_count\n" +
+        "- sentence_count\n" +
+        "- total_word_count\n" +
+        "- total_character_count\n" +
+        "- total_sentence_count\n" +
+        "- file_count\n" +
+        "- words_today\n" +
+        "- characters_today\n" +
+        "- sentences_today\n",
+    });
   }
 }

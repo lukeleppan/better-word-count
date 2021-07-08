@@ -43,7 +43,7 @@ export function parse(query: string): Expression {
         break;
 
       default:
-        parsed.push(s);
+        parsed.push("{" + s + "}");
         break;
     }
   });
