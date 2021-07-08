@@ -1,11 +1,15 @@
 {
   "name": "better-word-count",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "Counts the words of selected text in the editor.",
   "main": "main.js",
   "scripts": {
+    "lint": "svelte-check && eslint . --ext .ts",
     "dev": "rollup --config rollup.config.js -w",
     "build": "rollup --config rollup.config.js"
+  },
+  "repository": {
+    "url": "https://github.com/lukeleppan/better-word-count.git"
   },
   "keywords": [
     "obsidian",
@@ -18,11 +22,20 @@
     "@rollup/plugin-commonjs": "^15.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-typescript": "^6.0.0",
-    "@types/node": "^14.14.2",
+    "@tsconfig/svelte": "^1.0.13",
+    "@types/moment": "^2.13.0",
+    "@types/node": "^14.17.3",
     "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
     "rollup": "^2.32.1",
     "rollup-plugin-copy": "^3.3.0",
+    "rollup-plugin-svelte": "^7.1.0",
+    "svelte-check": "^2.2.0",
+    "svelte-preprocess": "^4.7.3",
+    "ts-node": "^9.1.1",
     "tslib": "^2.0.3",
     "typescript": "^4.0.3"
+  },
+  "dependencies": {
+    "svelte": "^3.38.3"
   }
 }

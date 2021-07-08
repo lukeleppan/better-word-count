@@ -1,103 +1,132 @@
-import { settings } from "cluster";
-import { PluginSettingTab, Setting } from "obsidian";
-import BetterWordCount from "../main";
+import {
+  App,
+  DropdownComponent,
+  PluginSettingTab,
+  Setting,
+  TextAreaComponent,
+  ToggleComponent,
+} from "obsidian";
+import type BetterWordCount from "src/main";
+import { PRESETS, PresetOption } from "../settings/settings";
 
 export class BetterWordCountSettingsTab extends PluginSettingTab {
+  private disableTextAreas: boolean;
+
+  constructor(app: App, private plugin: BetterWordCount) {
+    super(app, plugin);
+    this.disableTextAreas =
+      this.plugin.settings.preset.name === "custom" ? false : true;
+  }
+
   display(): void {
     let { containerEl } = this;
-    const plugin: BetterWordCount = (this as any).plugin;
 
     containerEl.empty();
     containerEl.createEl("h2", { text: "Better Word Count Settings" });
 
-    // Word Count Settings
-    containerEl.createEl("h3", { text: "Word Count Settings" });
+    // General Settings
+    containerEl.createEl("h3", { text: "General Settings" });
     new Setting(containerEl)
-      .setName("Show Word Count")
-      .setDesc("Enable this to show the word count.")
-      .addToggle((boolean) =>
-        boolean.setValue(plugin.settings.showWords).onChange((value) => {
-          plugin.settings.showWords = value;
-          plugin.saveData(plugin.settings);
-        })
-      );
+      .setName("Collect Statistics")
+      .setDesc(
+        "Reload Required for change to take effect. Turn on to start collecting daily statistics of your writing. Stored in the .vault-stats file in the root of your vault. This is required for counts of the day."
+      )
+      .addToggle((cb: ToggleComponent) => {
+        cb.setValue(this.plugin.settings.collectStats);
+        cb.onChange(async (value: boolean) => {
+          this.plugin.settings.collectStats = value;
+          await this.plugin.saveSettings();
+        });
+      });
     new Setting(containerEl)
-      .setName("Word Count Prefix")
-      .setDesc("This changes the text in front of the word count number.")
-      .addText((text) =>
-        text.setValue(plugin.settings.wordsPrefix).onChange((value) => {
-          plugin.settings.wordsPrefix = value;
-          plugin.saveData(plugin.settings);
-        })
-      );
-    new Setting(containerEl)
-      .setName("Word Count Suffix")
-      .setDesc("This changes the text after of the word count number.")
-      .addText((text) =>
-        text.setValue(plugin.settings.wordsSuffix).onChange((value) => {
-          plugin.settings.wordsSuffix = value;
-          plugin.saveData(plugin.settings);
-        })
-      );
+      .setName("Don't Count Comments")
+      .setDesc("Turn on if you don't want markdown comments to be counted.")
+      .addToggle((cb: ToggleComponent) => {
+        cb.setValue(this.plugin.settings.countComments);
+        cb.onChange(async (value: boolean) => {
+          this.plugin.settings.countComments = value;
+          await this.plugin.saveSettings();
+        });
+      });
 
-    // Character Count Settings
-    containerEl.createEl("h3", { text: "Character Count Settings" });
+    // Status Bar Settings
+    containerEl.createEl("h3", { text: "Status Bar Settings" });
     new Setting(containerEl)
-      .setName("Show Character Count")
-      .setDesc("Enable this to show the character count.")
-      .addToggle((boolean) =>
-        boolean.setValue(plugin.settings.showCharacters).onChange((value) => {
-          plugin.settings.showCharacters = value;
-          plugin.saveData(plugin.settings);
-        })
-      );
-    new Setting(containerEl)
-      .setName("Character Count Prefix")
-      .setDesc("This changes the text in front of the character count number.")
-      .addText((text) =>
-        text.setValue(plugin.settings.charactersPrefix).onChange((value) => {
-          plugin.settings.charactersPrefix = value;
-          plugin.saveData(plugin.settings);
-        })
-      );
-    new Setting(containerEl)
-      .setName("Character Count Suffix")
-      .setDesc("This changes the text after of the character count number.")
-      .addText((text) =>
-        text.setValue(plugin.settings.charactersSuffix).onChange((value) => {
-          plugin.settings.charactersSuffix = value;
-          plugin.saveData(plugin.settings);
-        })
-      );
+      .setName("Select a Preset")
+      .setDesc(
+        "Presets are premade status bar expressions. Overides status bar settings."
+      )
+      .addDropdown((cb: DropdownComponent) => {
+        PRESETS.forEach((preset: PresetOption) => {
+          cb.addOption(preset.name, preset.name);
+        });
+        cb.setValue(this.plugin.settings.preset.name);
 
-    // Sentence Count Settings
-    containerEl.createEl("h3", { text: "Sentence Count Settings" });
+        cb.onChange(async (value: string) => {
+          let newPreset = PRESETS.find((preset) => preset.name === value);
+          this.plugin.settings.preset = newPreset;
+          this.plugin.settings.statusBarQuery = newPreset.statusBarQuery;
+          this.plugin.settings.statusBarAltQuery = newPreset.statusBarAltQuery;
+          await this.plugin.saveSettings();
+        });
+      });
     new Setting(containerEl)
-      .setName("Show Sentence Count")
-      .setDesc("Enable this to show the sentence count.")
-      .addToggle((boolean) =>
-        boolean.setValue(plugin.settings.showSentences).onChange((value) => {
-          plugin.settings.showSentences = value;
-          plugin.saveData(plugin.settings);
-        })
-      );
+      .setName("Status Bar Text")
+      .setDesc("Customize the Status Bar text with this.")
+      .addTextArea((cb: TextAreaComponent) => {
+        cb.setPlaceholder("Enter an expression...");
+        cb.setValue(this.plugin.settings.statusBarQuery);
+        cb.onChange((value: string) => {
+          let newPreset = PRESETS.find((preset) => preset.name === "custom");
+          this.plugin.settings.preset = newPreset;
+          this.plugin.settings.statusBarQuery = value;
+          this.plugin.saveSettings();
+        });
+      });
     new Setting(containerEl)
-      .setName("Sentence Count Prefix")
-      .setDesc("This changes the text in front of the sentence count number.")
-      .addText((text) =>
-        text.setValue(plugin.settings.sentencesPrefix).onChange((value) => {
-          plugin.settings.sentencesPrefix = value;
-          plugin.saveData(plugin.settings);
-        })
-      );
-    new Setting(containerEl)
-      .setName("Sentence Count Suffix")
-      .setDesc("This changes the text after of the sentence count number.")
-      .addText((text) =>
-        text.setValue(plugin.settings.sentencesSuffix).onChange((value) => {
-          plugin.settings.sentencesSuffix = value;
-          plugin.saveData(plugin.settings);
-        })
-      );
+      .setName("Alternative Status Bar Text")
+      .setDesc("Customize the Alternative Status Bar text with this.")
+      .addTextArea((cb: TextAreaComponent) => {
+        cb.setPlaceholder("Enter an expression...");
+        cb.setValue(this.plugin.settings.statusBarAltQuery);
+        cb.onChange((value: string) => {
+          let newPreset = PRESETS.find((preset) => preset.name === "custom");
+          this.plugin.settings.preset = newPreset;
+          this.plugin.settings.statusBarAltQuery = value;
+          this.plugin.saveSettings();
+        });
+      });
+
+    this.containerEl.createEl("h3", {
+      text: "Syntax for the status bars works like this: ",
+    });
+
+    this.containerEl.createEl("li", {
+      text: "To get a stat input the name of the stat in between `{}` eg. `{word_count}`.",
+    });
+
+    this.containerEl.createEl("li", {
+      text: "All other words remain.",
+    });
+
+    this.containerEl.createEl("br");
+
+    this.containerEl.createEl("h4", {
+      text: "Available Stats:",
+    });
+
+    this.containerEl.createEl("p", {
+      text:
+        "word_count, " +
+        "character_count, " +
+        "sentence_count, " +
+        "total_word_count, " +
+        "total_character_count, " +
+        "total_sentence_count, " +
+        "file_count, " +
+        "words_today, " +
+        "characters_today, " +
+        "sentences_today, ",
+    });
   }
 }
