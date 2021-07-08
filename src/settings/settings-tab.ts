@@ -29,7 +29,7 @@ export class BetterWordCountSettingsTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Collect Statistics")
       .setDesc(
-        "Turn on to start collecting daily statistics of your writing. Stored in the .vault-stats file in the root of your vault."
+        "Reload Required for change to take effect. Turn on to start collecting daily statistics of your writing. Stored in the .vault-stats file in the root of your vault. This is required for counts of the day."
       )
       .addToggle((cb: ToggleComponent) => {
         cb.setValue(this.plugin.settings.collectStats);
@@ -39,8 +39,8 @@ export class BetterWordCountSettingsTab extends PluginSettingTab {
         });
       });
     new Setting(containerEl)
-      .setName("Count Comments")
-      .setDesc("Turn off if you don't want markdown comments to be counted.")
+      .setName("Don't Count Comments")
+      .setDesc("Turn on if you don't want markdown comments to be counted.")
       .addToggle((cb: ToggleComponent) => {
         cb.setValue(this.plugin.settings.countComments);
         cb.onChange(async (value: boolean) => {
@@ -76,6 +76,12 @@ export class BetterWordCountSettingsTab extends PluginSettingTab {
       .addTextArea((cb: TextAreaComponent) => {
         cb.setPlaceholder("Enter an expression...");
         cb.setValue(this.plugin.settings.statusBarQuery);
+        cb.onChange((value: string) => {
+          let newPreset = PRESETS.find((preset) => preset.name === "custom");
+          this.plugin.settings.preset = newPreset;
+          this.plugin.settings.statusBarQuery = value;
+          this.plugin.saveSettings();
+        });
       });
     new Setting(containerEl)
       .setName("Alternative Status Bar Text")
@@ -84,6 +90,8 @@ export class BetterWordCountSettingsTab extends PluginSettingTab {
         cb.setPlaceholder("Enter an expression...");
         cb.setValue(this.plugin.settings.statusBarAltQuery);
         cb.onChange((value: string) => {
+          let newPreset = PRESETS.find((preset) => preset.name === "custom");
+          this.plugin.settings.preset = newPreset;
           this.plugin.settings.statusBarAltQuery = value;
           this.plugin.saveSettings();
         });

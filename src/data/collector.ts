@@ -1,6 +1,6 @@
 import moment from "moment";
 import type { MetadataCache, TFile, Vault } from "obsidian";
-import { getCharacterCount, getWordCount } from "./stats";
+import { getCharacterCount, getSentenceCount, getWordCount } from "./stats";
 
 export class DataCollector {
   private vault: Vault;
@@ -42,7 +42,7 @@ export class DataCollector {
     const files = this.vault.getFiles();
     for (const i in files) {
       const file = files[i];
-      sentence += getCharacterCount(await this.vault.cachedRead(file));
+      sentence += getSentenceCount(await this.vault.cachedRead(file));
     }
 
     return sentence;

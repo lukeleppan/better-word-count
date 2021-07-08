@@ -1,14 +1,44 @@
 import moment from "moment";
-import type { MetadataCache, TAbstractFile, Vault } from "obsidian";
+import type { MetadataCache, TFile, Vault } from "obsidian";
 import { STATS_FILE } from "src/constants";
 import { DataCollector } from "./collector";
+import { getCharacterCount, getSentenceCount, getWordCount } from "./stats";
+
+type History = Record<string, Day>;
+
+interface Day {
+  files: number;
+  modifiedFiles: ModFiles;
+  words: number;
+  characters: number;
+  sentences: number;
+  totalWords: number;
+  totalCharacters: number;
+  totalSentences: number;
+}
+
+type ModFiles = Record<string, FileStats>;
+
+type FileStats = Record<number, Count>;
+
+interface Count {
+  initial: number;
+  current: number;
+}
+
+export interface TodayCounts {
+  words: number;
+  characters: number;
+  sentences: number;
+}
 
 export class DataManager {
   private vault: Vault;
   private metadataCache: MetadataCache;
-  private stats: any;
-  private index: number;
+  private history: History;
+  private today: string;
   private collector: DataCollector;
+  private todayCounts: TodayCounts;
 
   constructor(vault: Vault, metadataCache: MetadataCache) {
     this.vault = vault;
@@ -17,71 +47,127 @@ export class DataManager {
 
     this.vault.adapter.exists(".vault-stats").then(async (exists) => {
       if (!exists) {
-        const json: string = JSON.stringify({
-          history: [],
-        });
-
-        this.vault.adapter.write(".vault-stats", json);
+        this.vault.adapter.write(".vault-stats", "{}");
       }
 
-      this.stats = JSON.parse(await this.vault.adapter.read(".vault-stats"));
-      this.getTodayIndex();
+      this.history = Object.assign(
+        JSON.parse(await this.vault.adapter.read(".vault-stats"))
+      );
 
+      this.updateToday();
       this.update();
     });
   }
 
   async update(): Promise<void> {
-    this.vault.adapter.write(STATS_FILE, JSON.stringify(this.stats));
+    this.vault.adapter.write(STATS_FILE, JSON.stringify(this.history));
   }
 
-  getTodayIndex(): void {
-    const length: number = this.stats.history.length;
+  async updateToday(): Promise<void> {
+    const newDay: Day = {
+      files: this.collector.getTotalFileCount(),
+      modifiedFiles: {},
+      words: 0,
+      characters: 0,
+      sentences: 0,
+      totalWords: await this.collector.getTotalWordCount(),
+      totalCharacters: await this.collector.getTotalCharacterCount(),
+      totalSentences: await this.collector.getTotalSentenceCount(),
+    };
 
-    if (length === 0) {
-      this.index =
-        this.stats.history.push({
-          date: moment().format("YYYY-MM-DD"),
-          initFiles: 0,
-          finalFiles: 0,
-          modifiedFiles: [],
-          words: 0,
-          characters: 0,
-          sentences: 0,
-          totalWords: 0,
-          totalCharacters: 0,
-          totalSentences: 0,
-        }) - 1;
-    } else if (
-      this.stats.history[this.stats.history.length - 1].date ===
-      moment().format("YYYY-MM-DD")
+    if (!this.history.hasOwnProperty(moment().format("YYYY-MM-DD"))) {
+      this.history[moment().format("YYYY-MM-DD")] = newDay;
+    }
+
+    this.today = moment().format("YYYY-MM-DD");
+
+    this.update();
+  }
+
+  async setTotalStats() {
+    this.history[this.today].files = this.collector.getTotalFileCount();
+    this.history[this.today].totalWords =
+      await this.collector.getTotalWordCount();
+    this.history[this.today].totalCharacters =
+      await this.collector.getTotalCharacterCount();
+    this.history[this.today].totalSentences =
+      await this.collector.getTotalSentenceCount();
+    this.update();
+  }
+
+  change(file: TFile, data: string) {
+    const currentWords = getWordCount(data);
+    const currentCharacters = getCharacterCount(data);
+    const currentSentences = getSentenceCount(data);
+
+    if (
+      this.history.hasOwnProperty(this.today) &&
+      this.today === moment().format("YYYY-MM-DD")
     ) {
-      this.index = this.stats.history.length - 1;
-    } else {
-      this.index =
-        this.stats.history.push({
-          date: moment().format("YYYY-MM-DD"),
-          initFiles: 0,
-          finalFiles: 0,
-          modifiedFiles: [],
-          words: 0,
-          characters: 0,
-          sentences: 0,
-          totalWords: 0,
-          totalCharacters: 0,
-          totalSentences: 0,
-        }) - 1;
-    }
-  }
+      if (!this.history[this.today].modifiedFiles.hasOwnProperty(file.path)) {
+        const newWordCount: Count = {
+          initial: currentWords,
+          current: currentWords,
+        };
+        const newCharacterCount: Count = {
+          initial: currentCharacters,
+          current: currentCharacters,
+        };
+        const newSentenceCount: Count = {
+          initial: currentSentences,
+          current: currentSentences,
+        };
+        const fileStats: FileStats = {
+          0: newWordCount,
+          1: newCharacterCount,
+          2: newSentenceCount,
+        };
 
-  onVaultModify(file: TAbstractFile) {
-    if (!this.stats.history[this.index].modifiedFiles.includes(file.name)) {
-      this.stats.history[this.index].modifiedFiles.push(file.name);
+        this.history[this.today].modifiedFiles[file.path] = fileStats;
+      } else {
+        this.history[this.today].modifiedFiles[file.path][0].current =
+          currentWords;
+        this.history[this.today].modifiedFiles[file.path][1].current =
+          currentCharacters;
+        this.history[this.today].modifiedFiles[file.path][2].current =
+          currentSentences;
+      }
+      this.updateTodayCounts();
       this.update();
+    } else {
+      this.updateToday();
     }
   }
 
-  change(cm: CodeMirror.Editor) {}
+  updateTodayCounts() {
+    const words = Object.values(this.history[this.today].modifiedFiles)
+      .map((counts) => Math.max(0, counts[0].current - counts[0].initial))
+      .reduce((a, b) => a + b, 0);
+    const characters = Object.values(this.history[this.today].modifiedFiles)
+      .map((counts) => Math.max(0, counts[1].current - counts[1].initial))
+      .reduce((a, b) => a + b, 0);
+    const sentences = Object.values(this.history[this.today].modifiedFiles)
+      .map((counts) => Math.max(0, counts[2].current - counts[2].initial))
+      .reduce((a, b) => a + b, 0);
 
-  setTotalStats() {}
+    this.history[this.today].words = words;
+    this.history[this.today].characters = characters;
+    this.history[this.today].sentences = sentences;
+
+    this.todayCounts = {
+      words: words,
+      characters: characters,
+      sentences: sentences,
+    };
+  }
+
+  getTodayCounts(): TodayCounts {
+    return this.todayCounts;
+  }
+
+  async updateFromFile() {
+    this.history = Object.assign(
+      JSON.parse(await this.vault.adapter.read(".vault-stats"))
+    );
+  }
 }
