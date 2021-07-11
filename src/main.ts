@@ -56,7 +56,7 @@ export default class BetterWordCount extends Plugin {
       this.registerEvent(
         this.app.workspace.on(
           "quick-preview",
-          this.dataManager.change,
+          this.dataManager.debounceChange,
           this.dataManager
         )
       );
