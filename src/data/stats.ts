@@ -37,6 +37,5 @@ export function getSentenceCount(text: string): number {
 }
 
 export function cleanComments(text: string): string {
-  console.log(text.match(MATCH_COMMENT));
   return text.replace(MATCH_COMMENT, "").replace(MATCH_HTML_COMMENT, "");
 }
