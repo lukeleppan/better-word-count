@@ -1,5 +1,5 @@
 import moment from "moment";
-import type { MetadataCache, TFile, Vault } from "obsidian";
+import { debounce, Debouncer, MetadataCache, TFile, Vault } from "obsidian";
 import { STATS_FILE } from "src/constants";
 import { DataCollector } from "./collector";
 import { getCharacterCount, getSentenceCount, getWordCount } from "./stats";
@@ -39,11 +39,17 @@ export class DataManager {
   private today: string;
   private collector: DataCollector;
   private todayCounts: TodayCounts;
+  public debounceChange: Debouncer<[file: TFile, data: string]>;
 
   constructor(vault: Vault, metadataCache: MetadataCache) {
     this.vault = vault;
     this.metadataCache = metadataCache;
     this.collector = new DataCollector(vault, metadataCache);
+    this.debounceChange = debounce(
+      (file: TFile, data: string) => this.change(file, data),
+      1000,
+      false
+    );
 
     this.vault.adapter.exists(".vault-stats").then(async (exists) => {
       if (!exists) {

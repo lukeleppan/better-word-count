@@ -1,4 +1,4 @@
-import type { MetadataCache, Vault } from "obsidian";
+import { MetadataCache, Vault, Debouncer, debounce } from "obsidian";
 import { DataCollector } from "src/data/collector";
 import { DataManager } from "src/data/manager";
 import type { TodayCounts } from "src/data/manager";
@@ -18,6 +18,8 @@ export class BarManager {
   private vault: Vault;
   private dataCollector: DataCollector;
   private dataManager: DataManager;
+  private deboucer: Debouncer<[text: string]>;
+  private expression: Expression;
 
   constructor(
     statusBar: StatusBar,
@@ -30,13 +32,18 @@ export class BarManager {
     this.vault = vault;
     this.dataCollector = new DataCollector(vault, metadataCache);
     this.dataManager = new DataManager(vault, metadataCache);
+    this.deboucer = debounce(
+      (text: string) => this.updateStatusBar(text),
+      20,
+      false
+    );
+    this.expression = parse(this.settings.statusBarQuery);
   }
 
-  async updateStatusBar(text: string): Promise<void> {
+  updateStatusBar(text: string): void {
     let newText = "";
-    const expression: Expression = parse(this.settings.statusBarQuery);
+
     if (this.settings.collectStats) {
-      this.dataManager.updateToday();
       this.dataManager.updateTodayCounts();
     }
     const todayCounts: TodayCounts = this.settings.collectStats
@@ -44,10 +51,10 @@ export class BarManager {
       : { words: 0, characters: 0, sentences: 0 };
 
     let varsIndex = 0;
-    for (const i in expression.parsed) {
-      const e = expression.parsed[i];
+    for (const i in this.expression.parsed) {
+      const e = this.expression.parsed[i];
       newText = newText + e;
-      switch (expression.vars[varsIndex]) {
+      switch (this.expression.vars[varsIndex]) {
         case 0:
           newText = newText + getWordCount(text);
           break;
@@ -58,15 +65,13 @@ export class BarManager {
           newText = newText + getSentenceCount(text);
           break;
         case 3:
-          newText = newText + (await this.dataCollector.getTotalWordCount());
+          newText = newText + this.dataManager.getTodayCounts().words;
           break;
         case 4:
-          newText =
-            newText + (await this.dataCollector.getTotalCharacterCount());
+          newText = newText + this.dataManager.getTodayCounts().characters;
           break;
         case 5:
-          newText =
-            newText + (await this.dataCollector.getTotalCharacterCount());
+          newText = newText + this.dataManager.getTodayCounts().sentences;
           break;
         case 6:
           newText = newText + this.dataCollector.getTotalFileCount();
@@ -87,10 +92,13 @@ export class BarManager {
     this.statusBar.displayText(newText);
   }
 
-  async updateAltStatusBar(): Promise<void> {
+  updateAltStatusBar(): void {
     let newText = "";
     const expression: Expression = parse(this.settings.statusBarAltQuery);
-    if (this.settings.collectStats) this.dataManager.updateTodayCounts();
+    if (this.settings.collectStats) {
+      this.dataManager.updateTodayCounts();
+    }
+
     const todayCounts: TodayCounts = this.settings.collectStats
       ? this.dataManager.getTodayCounts()
       : { words: 0, characters: 0, sentences: 0 };
@@ -110,15 +118,13 @@ export class BarManager {
           newText = newText + getSentenceCount("");
           break;
         case 3:
-          newText = newText + (await this.dataCollector.getTotalWordCount());
+          newText = newText + this.dataManager.getTodayCounts().words;
           break;
         case 4:
-          newText =
-            newText + (await this.dataCollector.getTotalCharacterCount());
+          newText = newText + this.dataManager.getTodayCounts().characters;
           break;
         case 5:
-          newText =
-            newText + (await this.dataCollector.getTotalCharacterCount());
+          newText = newText + this.dataManager.getTodayCounts().sentences;
           break;
         case 6:
           newText = newText + this.dataCollector.getTotalFileCount();
@@ -142,18 +148,18 @@ export class BarManager {
   cursorActivity(cm: CodeMirror.Editor) {
     if (cm.somethingSelected()) {
       if (this.settings.countComments) {
-        this.updateStatusBar(cleanComments(cm.getSelection()));
+        this.deboucer(cleanComments(cm.getSelection()));
       } else {
-        this.updateStatusBar(cm.getSelection());
+        this.deboucer(cm.getSelection());
       }
     } else {
       if (this.settings.collectStats) {
         this.dataManager.updateFromFile();
       }
       if (this.settings.countComments) {
-        this.updateStatusBar(cleanComments(cm.getValue()));
+        this.deboucer(cleanComments(cm.getValue()));
       } else {
-        this.updateStatusBar(cm.getValue());
+        this.deboucer(cm.getValue());
       }
     }
   }
