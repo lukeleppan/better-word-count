@@ -35,7 +35,10 @@ export class BarManager {
   async updateStatusBar(text: string): Promise<void> {
     let newText = "";
     const expression: Expression = parse(this.settings.statusBarQuery);
-    if (this.settings.collectStats) this.dataManager.updateTodayCounts();
+    if (this.settings.collectStats) {
+      this.dataManager.updateToday();
+      this.dataManager.updateTodayCounts();
+    }
     const todayCounts: TodayCounts = this.settings.collectStats
       ? this.dataManager.getTodayCounts()
       : { words: 0, characters: 0, sentences: 0 };
