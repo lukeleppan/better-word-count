@@ -3,11 +3,11 @@ export const DEFAULT_SETTINGS: BetterWordCountSettings = {
     name: "default",
     statusBarQuery: "{word_count} words {character_count} characters",
     statusBarAltQuery:
-      "{files} files {total_words} words {total_characters} characters",
+      "{file_count} files {total_word_count} words {total_character_count} characters",
   },
   statusBarQuery: "{word_count} words {character_count} characters",
   statusBarAltQuery:
-    "{files} files {total_words} words {total_characters} characters",
+    "{file_count} files {total_word_count} words {total_character_count} characters",
   countComments: false,
   collectStats: false,
 };
@@ -17,12 +17,13 @@ export const PRESETS: PresetOption[] = [
     name: "default",
     statusBarQuery: "{word_count} words {character_count} characters",
     statusBarAltQuery:
-      "{files} files {total_words} words {total_characters} characters",
+      "{file_count} files {total_word_count} words {total_character_count} characters",
   },
   {
     name: "minimal",
     statusBarQuery: "w: {word_count} c: {character_count}",
-    statusBarAltQuery: "f: {files} tw: {total_words} tc: {total_characters}",
+    statusBarAltQuery:
+      "f: {file_count} tw: {total_word_count} tc: {total_character_count}",
   },
   {
     name: "custom",
