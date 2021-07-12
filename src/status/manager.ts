@@ -65,13 +65,13 @@ export class BarManager {
           newText = newText + getSentenceCount(text);
           break;
         case 3:
-          newText = newText + this.dataManager.getTodayCounts().words;
+          newText = newText + this.dataManager.getTotalCounts().words;
           break;
         case 4:
-          newText = newText + this.dataManager.getTodayCounts().characters;
+          newText = newText + this.dataManager.getTotalCounts().characters;
           break;
         case 5:
-          newText = newText + this.dataManager.getTodayCounts().sentences;
+          newText = newText + this.dataManager.getTotalCounts().sentences;
           break;
         case 6:
           newText = newText + this.dataCollector.getTotalFileCount();
@@ -92,7 +92,7 @@ export class BarManager {
     this.statusBar.displayText(newText);
   }
 
-  updateAltStatusBar(): void {
+  async updateAltStatusBar(): Promise<void> {
     let newText = "";
     const expression: Expression = parse(this.settings.statusBarAltQuery);
     if (this.settings.collectStats) {
@@ -118,13 +118,15 @@ export class BarManager {
           newText = newText + getSentenceCount("");
           break;
         case 3:
-          newText = newText + this.dataManager.getTodayCounts().words;
+          newText = newText + (await this.dataCollector.getTotalWordCount());
           break;
         case 4:
-          newText = newText + this.dataManager.getTodayCounts().characters;
+          newText =
+            newText + (await this.dataCollector.getTotalCharacterCount());
           break;
         case 5:
-          newText = newText + this.dataManager.getTodayCounts().sentences;
+          newText =
+            newText + (await this.dataCollector.getTotalSentenceCount());
           break;
         case 6:
           newText = newText + this.dataCollector.getTotalFileCount();
