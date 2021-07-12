@@ -32,6 +32,12 @@ export interface TodayCounts {
   sentences: number;
 }
 
+export interface TotalCounts {
+  words: number;
+  characters: number;
+  sentences: number;
+}
+
 export class DataManager {
   private vault: Vault;
   private metadataCache: MetadataCache;
@@ -169,6 +175,14 @@ export class DataManager {
 
   getTodayCounts(): TodayCounts {
     return this.todayCounts;
+  }
+
+  getTotalCounts(): TotalCounts {
+    return {
+      words: this.history[this.today].totalWords,
+      characters: this.history[this.today].totalCharacters,
+      sentences: this.history[this.today].totalSentences,
+    };
   }
 
   async updateFromFile() {
