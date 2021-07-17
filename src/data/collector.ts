@@ -12,7 +12,7 @@ export class DataCollector {
   }
 
   getTotalFileCount() {
-    return Object.keys(this.metadataCache.resolvedLinks).length;
+    return this.vault.getMarkdownFiles().length;
   }
 
   async getTotalWordCount() {
@@ -20,7 +20,9 @@ export class DataCollector {
     const files = this.vault.getFiles();
     for (const i in files) {
       const file = files[i];
-      words += getWordCount(await this.vault.cachedRead(file));
+      if (file.extension === "md") {
+        words += getWordCount(await this.vault.cachedRead(file));
+      }
     }
 
     return words;
@@ -31,7 +33,9 @@ export class DataCollector {
     const files = this.vault.getFiles();
     for (const i in files) {
       const file = files[i];
-      characters += getCharacterCount(await this.vault.cachedRead(file));
+      if (file.extension === "md") {
+        characters += getCharacterCount(await this.vault.cachedRead(file));
+      }
     }
 
     return characters;
@@ -42,7 +46,9 @@ export class DataCollector {
     const files = this.vault.getFiles();
     for (const i in files) {
       const file = files[i];
-      sentence += getSentenceCount(await this.vault.cachedRead(file));
+      if (file.extension === "md") {
+        sentence += getSentenceCount(await this.vault.cachedRead(file));
+      }
     }
 
     return sentence;
