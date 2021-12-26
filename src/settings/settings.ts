@@ -10,6 +10,7 @@ export const DEFAULT_SETTINGS: BetterWordCountSettings = {
     "{file_count} files {total_word_count} words {total_character_count} characters",
   countComments: false,
   collectStats: false,
+  fileNameFilter: "",
 };
 
 export const PRESETS: PresetOption[] = [
@@ -38,6 +39,7 @@ export interface BetterWordCountSettings {
   statusBarAltQuery: string;
   countComments: boolean;
   collectStats: boolean;
+  fileNameFilter: string;
 }
 
 export interface PresetOption {

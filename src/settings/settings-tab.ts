@@ -48,6 +48,16 @@ export class BetterWordCountSettingsTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         });
       });
+    new Setting(containerEl)
+      .setName("Filter Out Filenames")
+      .setDesc("Filenames including this string will be omitted from total counts. Leave blank to count all files.")
+      .addText((text) => {
+        text.setValue(this.plugin.settings.fileNameFilter)
+        text.onChange(async (value: string) => {
+          this.plugin.settings.fileNameFilter = value;
+          await this.plugin.saveSettings();
+        });
+      });
 
     // Status Bar Settings
     containerEl.createEl("h3", { text: "Status Bar Settings" });
