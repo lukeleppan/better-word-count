@@ -38,7 +38,8 @@ export default class BetterWordCount extends Plugin {
     if (this.settings.collectStats) {
       this.dataManager = new DataManager(
         this.app.vault,
-        this.app.metadataCache
+        this.app.metadataCache,
+        this.settings
       );
     }
 

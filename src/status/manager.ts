@@ -30,8 +30,8 @@ export class BarManager {
     this.statusBar = statusBar;
     this.settings = settings;
     this.vault = vault;
-    this.dataCollector = new DataCollector(vault, metadataCache);
-    this.dataManager = new DataManager(vault, metadataCache);
+    this.dataCollector = new DataCollector(vault, metadataCache, settings);
+    this.dataManager = new DataManager(vault, metadataCache, settings);
     this.deboucer = debounce(
       (text: string) => this.updateStatusBar(text),
       20,

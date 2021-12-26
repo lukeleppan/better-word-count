@@ -1,6 +1,7 @@
 import moment from "moment";
 import { debounce, Debouncer, MetadataCache, TFile, Vault } from "obsidian";
 import { STATS_FILE } from "src/constants";
+import type { BetterWordCountSettings } from "src/settings/settings";
 import { DataCollector } from "./collector";
 import { getCharacterCount, getSentenceCount, getWordCount } from "./stats";
 
@@ -41,34 +42,38 @@ export interface TotalCounts {
 export class DataManager {
   private vault: Vault;
   private metadataCache: MetadataCache;
+  private settings: BetterWordCountSettings;
   private history: History;
   private today: string;
   private collector: DataCollector;
   private todayCounts: TodayCounts;
   public debounceChange: Debouncer<[file: TFile, data: string]>;
 
-  constructor(vault: Vault, metadataCache: MetadataCache) {
+  constructor(vault: Vault, metadataCache: MetadataCache, settings: BetterWordCountSettings) {
     this.vault = vault;
     this.metadataCache = metadataCache;
-    this.collector = new DataCollector(vault, metadataCache);
+    this.settings = settings;
+    this.collector = new DataCollector(vault, metadataCache, settings);
     this.debounceChange = debounce(
       (file: TFile, data: string) => this.change(file, data),
       1000,
       false
     );
 
-    this.vault.adapter.exists(".vault-stats").then(async (exists) => {
-      if (!exists) {
-        this.vault.adapter.write(".vault-stats", "{}");
-      }
-
-      this.history = Object.assign(
-        JSON.parse(await this.vault.adapter.read(".vault-stats"))
-      );
-
-      this.updateToday();
-      this.update();
-    });
+    if(this.settings.collectStats){
+      this.vault.adapter.exists(".vault-stats").then(async (exists) => {
+        if (!exists) {
+          this.vault.adapter.write(".vault-stats", "{}");
+        }
+  
+        this.history = Object.assign(
+          JSON.parse(await this.vault.adapter.read(".vault-stats"))
+        );
+  
+        this.updateToday();
+        this.update();
+      });
+    }
   }
 
   async update(): Promise<void> {

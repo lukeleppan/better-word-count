@@ -1,14 +1,17 @@
 import moment from "moment";
 import type { MetadataCache, TFile, Vault } from "obsidian";
+import type { BetterWordCountSettings } from "src/settings/settings";
 import { getCharacterCount, getSentenceCount, getWordCount } from "./stats";
 
 export class DataCollector {
   private vault: Vault;
   private metadataCache: MetadataCache;
+  private settings: BetterWordCountSettings;
 
-  constructor(vault: Vault, metadataCache: MetadataCache) {
+  constructor(vault: Vault, metadataCache: MetadataCache, settings: BetterWordCountSettings) {
     this.vault = vault;
     this.metadataCache = metadataCache;
+    this.settings = settings;
   }
 
   getTotalFileCount() {
