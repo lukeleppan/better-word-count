@@ -6,6 +6,8 @@ This plugin is the same as the built-in **Word Count** plugin, except when you s
 
 ![Better Count Word](https://raw.githubusercontent.com/lukeleppan/better-word-count/master/assets/better-word-count.gif)
 
+**Better Word Count may not work with the new Live-Preview Editor. Switch to the legacy editor in  Obsidian Settings > Editor > Use Legacy Editor.**
+
 ## Features
 
 - Allows you to store statistics about your vault.
