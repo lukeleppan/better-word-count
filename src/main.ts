@@ -29,10 +29,10 @@ export default class BetterWordCount extends Plugin {
   // }
 
   onload() {
-    this.createCMExtension();
-
     let statusBarEl = this.addStatusBarItem();
     BetterWordCount.statusBar = new StatusBar(statusBarEl);
+
+    this.createCMExtension();
 
     // this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
     // this.addSettingTab(new BetterWordCountSettingsTab(this.app, this));
