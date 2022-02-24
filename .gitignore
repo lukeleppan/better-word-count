@@ -11,5 +11,5 @@ main.js
 *.js.map
 test-vault/
 *.zip
-
+.DS_Store
 dist/
