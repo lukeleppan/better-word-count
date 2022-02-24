@@ -148,6 +148,7 @@ export class BarManager {
   }
 
   cursorActivity(cm: CodeMirror.Editor) {
+    console.log("detected cursor activity");
     if (cm.somethingSelected()) {
       if (this.settings.countComments) {
         this.deboucer(cleanComments(cm.getSelection()));

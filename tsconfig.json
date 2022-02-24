@@ -12,6 +12,7 @@
     "importHelpers": true
     // "lib": ["dom", "es5", "scripthost", "es2015"]
   },
-  "include": ["**/*.ts"],
+  // "include": ["**/*.ts"],
+  "include": ["**/main.ts", "**/bar.ts"],
   "exclude": ["node_modules/*"]
 }

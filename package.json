@@ -1,6 +1,6 @@
 {
   "name": "better-word-count",
-  "version": "0.7.7",
+  "version": "0.8.0",
   "description": "Counts the words of selected text in the editor.",
   "main": "main.js",
   "scripts": {
@@ -19,6 +19,18 @@
   "author": "Luke Leppan",
   "license": "MIT",
   "devDependencies": {
+    "@codemirror/text": "^0.19.6",
+    "@codemirror/commands": "^0.19.0",
+    "@codemirror/fold": "0.19.0",
+    "@codemirror/history": "^0.19.0",
+    "@codemirror/language": "^0.19.0",
+    "@codemirror/matchbrackets": "^0.19.0",
+    "@codemirror/panel": "^0.19.0",
+    "@codemirror/rangeset": "^0.19.0",
+    "@codemirror/search": "^0.19.0",
+    "@codemirror/state": "^0.19.0",
+    "@codemirror/stream-parser": "^0.19.0",
+    "@codemirror/view": "^0.19.0",
     "@rollup/plugin-commonjs": "^15.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-typescript": "^6.0.0",
