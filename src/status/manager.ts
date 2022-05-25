@@ -25,13 +25,14 @@ export class BarManager {
     statusBar: StatusBar,
     settings: BetterWordCountSettings,
     vault: Vault,
-    metadataCache: MetadataCache
+    metadataCache: MetadataCache,
+    dataManager: DataManager
   ) {
     this.statusBar = statusBar;
     this.settings = settings;
     this.vault = vault;
     this.dataCollector = new DataCollector(vault, metadataCache, settings);
-    this.dataManager = new DataManager(vault, metadataCache, settings);
+    this.dataManager = dataManager;
     this.deboucer = debounce(
       (text: string) => this.updateStatusBar(text),
       20,

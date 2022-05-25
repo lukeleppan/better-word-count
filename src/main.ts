@@ -28,20 +28,20 @@ export default class BetterWordCount extends Plugin {
 
     let statusBarEl = this.addStatusBarItem();
     this.statusBar = new StatusBar(statusBarEl);
+
+    this.dataManager = new DataManager(
+      this.app.vault,
+      this.app.metadataCache,
+      this.settings
+    );
+
     this.barManager = new BarManager(
       this.statusBar,
       this.settings,
       this.app.vault,
-      this.app.metadataCache
+      this.app.metadataCache,
+      this.dataManager
     );
-
-    if (this.settings.collectStats) {
-      this.dataManager = new DataManager(
-        this.app.vault,
-        this.app.metadataCache,
-        this.settings
-      );
-    }
 
     this.registerEvent(
       this.app.workspace.on("active-leaf-change", this.activeLeafChange, this)
