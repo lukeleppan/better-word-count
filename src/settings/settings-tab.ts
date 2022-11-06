@@ -6,16 +6,12 @@ import {
   TextAreaComponent,
   ToggleComponent,
 } from "obsidian";
-import type BetterWordCount from "src/main";
-import { PRESETS, PresetOption } from "../settings/settings";
+import type BetterWordCount from "../main";
+import { BetterWordCountSettings, DEFAULT_SETTINGS } from "./settings";
 
 export class BetterWordCountSettingsTab extends PluginSettingTab {
-  private disableTextAreas: boolean;
-
   constructor(app: App, private plugin: BetterWordCount) {
     super(app, plugin);
-    this.disableTextAreas =
-      this.plugin.settings.preset.name === "custom" ? false : true;
   }
 
   display(): void {
