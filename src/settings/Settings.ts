@@ -4,11 +4,18 @@ export enum Counter {
   totalWords,
   totalChars,
 }
+
 export interface StatusBarItem {
   start: string;
   end: string;
   count: Counter;
 }
+
+export const BLANK_SB_ITEM: StatusBarItem = {
+  start: "",
+  end: "",
+  count: null,
+};
 
 export interface BetterWordCountSettings {
   statusBar: StatusBarItem[];

@@ -12,7 +12,13 @@
     "importHelpers": true
     // "lib": ["dom", "es5", "scripthost", "es2015"]
   },
-  // "include": ["**/*.ts"],
-  "include": ["**/main.ts", "**/bar.ts"],
+  "include": [
+    "**/main.ts",
+    "**/bar.ts",
+    "**/Settings.ts",
+    "**/SettingsTab.ts",
+    "**/StatusBarSettings.ts",
+    "**/StatusBarSettings.svelte"
+  ],
   "exclude": ["node_modules/*"]
 }

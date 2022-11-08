@@ -10,10 +10,14 @@ import {
   editorEditorField,
   Notice,
 } from "obsidian";
-// import { BetterWordCountSettingsTab } from "./settings/settings-tab";
-// import { BetterWordCountSettings, DEFAULT_SETTINGS } from "./settings/settings";
-// import { StatusBar } from "./status/bar";
 // import { STATS_ICON, STATS_ICON_NAME, VIEW_TYPE_STATS } from "./constants";
+import {
+  BetterWordCountSettings,
+  DEFAULT_SETTINGS,
+} from "src/settings/Settings";
+import { BetterWordCountSettingsTab } from "./settings/SettingsTab";
+
+// import { StatusBar } from "./status/bar";
 // import StatsView from "./view/view";
 // import { DataManager } from "./data/manager";
 // import { BarManager } from "./status/manager";
@@ -28,7 +32,7 @@ import { StatusBar } from "./status/bar";
 export default class BetterWordCount extends Plugin {
   public static statusBar: StatusBar;
   // public currentFile: TFile;
-  // public settings: BetterWordCountSettings;
+  public settings: BetterWordCountSettings;
   // public view: StatsView;
   // public dataManager: DataManager;
   // public barManager: BarManager;
@@ -39,13 +43,13 @@ export default class BetterWordCount extends Plugin {
   //     .forEach((leaf) => leaf.detach());
   // }
 
-  onload() {
+  async onload() {
     let statusBarEl = this.addStatusBarItem();
     BetterWordCount.statusBar = new StatusBar(statusBarEl);
     this.createCMExtension();
 
-    // this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
-    // this.addSettingTab(new BetterWordCountSettingsTab(this.app, this));
+    this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
+    this.addSettingTab(new BetterWordCountSettingsTab(this.app, this));
 
     // let statusBarElTest = this.addStatusBarItem();
     // statusBarElTest.setText("§l§aTest§r");
@@ -123,9 +127,9 @@ export default class BetterWordCount extends Plugin {
   //   }
   // }
 
-  // async saveSettings(): Promise<void> {
-  //   await this.saveData(this.settings);
-  // }
+  async saveSettings(): Promise<void> {
+    await this.saveData(this.settings);
+  }
 
   // initLeaf(): void {
   //   if (this.app.workspace.getLeavesOfType(VIEW_TYPE_STATS).length) {
