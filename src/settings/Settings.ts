@@ -1,19 +1,22 @@
 export enum Counter {
   fileWords,
   fileChars,
+  fileSentences,
   totalWords,
   totalChars,
+  totalSentences,
+  totalNotes,
 }
 
 export interface StatusBarItem {
-  start: string;
-  end: string;
+  prefix: string;
+  suffix: string;
   count: Counter;
 }
 
 export const BLANK_SB_ITEM: StatusBarItem = {
-  start: "",
-  end: "",
+  prefix: "",
+  suffix: "",
   count: null,
 };
 
@@ -26,13 +29,13 @@ export interface BetterWordCountSettings {
 export const DEFAULT_SETTINGS: BetterWordCountSettings = {
   statusBar: [
     {
-      start: "",
-      end: " words",
+      prefix: "",
+      suffix: " words",
       count: Counter.fileWords,
     },
     {
-      start: " ",
-      end: " characters",
+      prefix: " ",
+      suffix: " characters",
       count: Counter.fileChars,
     },
   ],

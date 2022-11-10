@@ -16,11 +16,20 @@
       case Counter.fileChars:
         return "File Chars";
 
+      case Counter.fileSentences:
+        return "File Sentences";
+
       case Counter.totalWords:
         return "Total Words";
 
       case Counter.totalChars:
         return "Total Chars";
+
+      case Counter.totalSentences:
+        return "Total Sentences"
+
+      case Counter.totalNotes:
+        return "Total Notes";
 
       default:
         return "Select Options"
@@ -137,11 +146,23 @@
             }}
           >
             <option value>Select Option</option>
-            <option value={Counter.fileWords}>{counterToString(Counter.fileWords)}</option>
-            <option value={Counter.totalWords}>{counterToString(Counter.totalWords)}</option>
-            <option value={Counter.fileChars}>{counterToString(Counter.fileChars)}</option>
-            <option value={Counter.totalChars}>{counterToString(Counter.totalChars)}</option>
-          </select>
+            <optgroup label="Words">
+              <option value={Counter.fileWords}>{counterToString(Counter.fileWords)}</option>
+              <option value={Counter.totalWords}>{counterToString(Counter.totalWords)}</option>
+            </optgroup>
+            <optgroup label="Characters">
+              <option value={Counter.fileChars}>{counterToString(Counter.fileChars)}</option>
+              <option value={Counter.totalChars}>{counterToString(Counter.totalChars)}</option>
+            </optgroup>
+            <optgroup label="Sentences">
+              <option value={Counter.fileSentences}>{counterToString(Counter.fileSentences)}</option>
+              <option value={Counter.totalSentences}>{counterToString(Counter.totalSentences)}</option>
+            </optgroup>
+            <optgroup label="Notes">
+              <option value={Counter.totalNotes}>{counterToString(Counter.totalNotes)}</option>
+            </optgroup>
+
+         </select>
         </div>
       </div>
       <div class="setting-item">

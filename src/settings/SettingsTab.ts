@@ -1,19 +1,8 @@
-import {
-  App,
-  DropdownComponent,
-  PluginSettingTab,
-  Setting,
-  TextAreaComponent,
-  ToggleComponent,
-} from "obsidian";
+import { App, PluginSettingTab, Setting, ToggleComponent } from "obsidian";
 import type BetterWordCount from "src/main";
-import type { StatusBarItem } from "./Settings";
 import { addStatusBarSettings } from "./StatusBarSettings";
 
-export const details = (text: string, parent: HTMLElement) =>
-  parent.createEl("details", {}, (d) => d.createEl("summary", { text }));
-
-export class BetterWordCountSettingsTab extends PluginSettingTab {
+export default class BetterWordCountSettingsTab extends PluginSettingTab {
   constructor(app: App, private plugin: BetterWordCount) {
     super(app, plugin);
   }
