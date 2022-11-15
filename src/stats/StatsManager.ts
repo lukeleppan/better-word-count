@@ -1,11 +1,8 @@
 import type { Vault, TFile, Workspace } from "obsidian";
 import { STATS_FILE } from "../constants";
 import type {
-  CountDiff,
   Day,
   VaultStatistics,
-  History,
-  FileStat,
 } from "./Stats";
 import moment from "moment";
 import {

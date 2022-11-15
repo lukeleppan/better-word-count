@@ -22,13 +22,35 @@ class EditorPlugin implements PluginValue {
     }
 
     const tr = update.transactions[0];
-    if (tr.isUserEvent("select")) {
+    if (!tr) return;
+    if (
+      tr.isUserEvent("select") &&
+      tr.newSelection.ranges[0].from !== tr.newSelection.ranges[0].to
+    ) {
       let text = "";
       const selection = tr.newSelection.main;
       const textIter = tr.newDoc.iterRange(selection.from, selection.to);
       while (!textIter.done) {
         text = text + textIter.next().value;
       }
+      this.plugin.statusBar.updateStatusBar(text);
+    } else if (
+      tr.isUserEvent("input") ||
+      tr.isUserEvent("delete") ||
+      tr.isUserEvent("move") ||
+      tr.isUserEvent("undo") ||
+      tr.isUserEvent("redo") ||
+      tr.isUserEvent("select")
+    ) {
+      const textIter = tr.newDoc.iter();
+      let text = "";
+      while (!textIter.done) {
+        text = text + textIter.next().value;
+      }
+      if (tr.docChanged && this.plugin.statsManager) {
+        this.plugin.statsManager.change(text);
+      }
+      this.plugin.statusBar.updateStatusBar(text);
     }
   }
 
