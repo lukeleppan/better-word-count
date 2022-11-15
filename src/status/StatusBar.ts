@@ -5,14 +5,21 @@ import {
   getCharacterCount,
   getSentenceCount,
 } from "src/utils/StatUtils";
+import { debounce } from "obsidian";
 
 export default class StatusBar {
   private statusBarEl: HTMLElement;
   private plugin: BetterWordCount;
+  public debounceStatusBarUpdate;
 
   constructor(statusBarEl: HTMLElement, plugin: BetterWordCount) {
     this.statusBarEl = statusBarEl;
     this.plugin = plugin;
+    this.debounceStatusBarUpdate = debounce(
+      (text: string) => this.updateStatusBar(text),
+      20,
+      false
+    );
 
     this.statusBarEl.classList.add("mod-clickable");
     this.statusBarEl.setAttribute("aria-label", "Open Stats View");
@@ -30,7 +37,7 @@ export default class StatusBar {
     this.statusBarEl.setText(text);
   }
 
-  updateStatusBar(text: string) {
+  async updateStatusBar(text: string) {
     const sb = this.plugin.settings.statusBar;
     let display = "";
 
@@ -49,13 +56,15 @@ export default class StatusBar {
           display = display + getSentenceCount(text);
           break;
         case Counter.totalWords:
-          display = display + this.plugin.statsManager.getTotalWords();
+          display = display + (await this.plugin.statsManager.getTotalWords());
           break;
         case Counter.totalChars:
-          display = display + this.plugin.statsManager.getTotalCharacters();
+          display =
+            display + (await this.plugin.statsManager.getTotalCharacters());
           break;
         case Counter.totalSentences:
-          display = display + this.plugin.statsManager.getTotalSentences();
+          display =
+            display + (await this.plugin.statsManager.getTotalSentences());
           break;
         case Counter.totalNotes:
           display = display + this.plugin.statsManager.getTotalFiles();

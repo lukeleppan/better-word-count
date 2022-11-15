@@ -1,4 +1,4 @@
-import { Plugin } from "obsidian";
+import { Plugin, TFile, WorkspaceLeaf } from "obsidian";
 import BetterWordCountSettingsTab from "./settings/SettingsTab";
 import StatsManager from "./stats/StatsManager";
 import StatusBar from "./status/StatusBar";
@@ -14,11 +14,10 @@ export default class BetterWordCount extends Plugin {
   public statusBar: StatusBar;
   public statsManager: StatsManager;
 
-  // onunload(): void {
-  //   this.app.workspace
-  //     .getLeavesOfType(VIEW_TYPE_STATS)
-  //     .forEach((leaf) => leaf.detach());
-  // }
+  async onunload(): Promise<void> {
+    this.statsManager = null;
+    this.statusBar = null;
+  }
 
   async onload() {
     // Handle Settings
@@ -38,12 +37,37 @@ export default class BetterWordCount extends Plugin {
     this.registerEditorExtension(editorPlugin);
 
     this.app.workspace.onLayoutReady(() => {
-      //@ts-expect-error, not typed
-      const editorView = this.app.workspace.getMostRecentLeaf().view.editor
-        .cm as EditorView;
+      this.giveEditorPlugin(this.app.workspace.getMostRecentLeaf());
+    });
+
+    this.registerEvent(
+      this.app.workspace.on(
+        "active-leaf-change",
+        async (leaf: WorkspaceLeaf) => {
+          await this.statsManager.recalcTotals();
+          this.giveEditorPlugin(leaf);
+        }
+      )
+    );
+
+    this.registerEvent(
+      this.app.vault.on("delete", async () => {
+        await this.statsManager.recalcTotals();
+      })
+    );
+  }
+
+  giveEditorPlugin(leaf: WorkspaceLeaf): void {
+    //@ts-expect-error, not typed
+    const editor = leaf.view.editor;
+    if (editor) {
+      const editorView = editor.cm as EditorView;
       const editorPlug = editorView.plugin(editorPlugin);
       editorPlug.addPlugin(this);
-    });
+      //@ts-expect-error, not typed
+      const data: string = leaf.view.data;
+      this.statusBar.updateStatusBar(data);
+    }
   }
 
   async saveSettings(): Promise<void> {

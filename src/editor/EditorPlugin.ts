@@ -33,7 +33,7 @@ class EditorPlugin implements PluginValue {
       while (!textIter.done) {
         text = text + textIter.next().value;
       }
-      this.plugin.statusBar.updateStatusBar(text);
+      this.plugin.statusBar.debounceStatusBarUpdate(text);
     } else if (
       tr.isUserEvent("input") ||
       tr.isUserEvent("delete") ||
@@ -48,9 +48,9 @@ class EditorPlugin implements PluginValue {
         text = text + textIter.next().value;
       }
       if (tr.docChanged && this.plugin.statsManager) {
-        this.plugin.statsManager.change(text);
+        this.plugin.statsManager.debounceChange(text);
       }
-      this.plugin.statusBar.updateStatusBar(text);
+      this.plugin.statusBar.debounceStatusBarUpdate(text);
     }
   }
 

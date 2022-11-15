@@ -1,4 +1,4 @@
-import type { Vault, TFile, Workspace } from "obsidian";
+import { debounce, Debouncer, TFile, Vault, Workspace } from "obsidian";
 import { STATS_FILE } from "../constants";
 import type {
   Day,
@@ -16,11 +16,12 @@ export default class StatsManager {
   private workspace: Workspace;
   private vaultStats: VaultStatistics;
   private today: string;
-  // public debounceChange: Debouncer<[file: TFile, data: string]>;
+  public debounceChange;
 
   constructor(vault: Vault, workspace: Workspace) {
     this.vault = vault;
     this.workspace = workspace;
+    this.debounceChange = debounce((text:string) => this.change(text), 50, false)
 
     this.vault.adapter.exists(STATS_FILE).then(async (exists) => {
       if (!exists) {
@@ -52,7 +53,6 @@ export default class StatsManager {
     const totalWords = await this.calcTotalWords();
     const totalCharacters = await this.calcTotalCharacters();
     const totalSentences = await this.calcTotalSentences();
-    const totalFiles = this.getTotalFiles();
 
     const newDay: Day = {
       words: 0,
@@ -133,6 +133,22 @@ export default class StatsManager {
     }
   }
 
+  public async recalcTotals() {
+    if (!this.vaultStats) return;
+    if (
+      this.vaultStats.history.hasOwnProperty(this.today) &&
+      this.today === moment().format("YYYY-MM-DD")
+    ) {
+      const todayHist: Day = this.vaultStats.history[this.today];
+      todayHist.totalWords = await this.calcTotalWords();
+      todayHist.totalCharacters = await this.calcTotalCharacters()
+      todayHist.totalSentences = await this.calcTotalSentences()
+      this.update();
+    } else {
+      this.updateToday();
+    }
+  }
+
   private async calcTotalWords(): Promise<number> {
     let words = 0;
 
@@ -176,15 +192,18 @@ export default class StatsManager {
     return this.vault.getMarkdownFiles().length;
   }
 
-  public getTotalWords(): number {
+  public async getTotalWords(): Promise<number> {
+    if (!this.vaultStats) return await this.calcTotalWords();
     return this.vaultStats.history[this.today].totalWords;
   }
 
-  public getTotalCharacters(): number {
+  public async getTotalCharacters(): Promise<number> {
+    if (!this.vaultStats) return await this.calcTotalCharacters();
     return this.vaultStats.history[this.today].totalCharacters;
   }
 
-  public getTotalSentences(): number {
+  public async getTotalSentences(): Promise<number> {
+    if (!this.vaultStats) return await this.calcTotalSentences();
     return this.vaultStats.history[this.today].totalSentences;
   }
 }
