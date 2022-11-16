@@ -8,6 +8,7 @@ import {
   BetterWordCountSettings,
   DEFAULT_SETTINGS,
 } from "src/settings/Settings";
+import { settingsStore } from "./utils/SvelteStores";
 
 export default class BetterWordCount extends Plugin {
   public settings: BetterWordCountSettings;
@@ -20,6 +21,12 @@ export default class BetterWordCount extends Plugin {
   }
 
   async onload() {
+    // Settings Store
+    this.register(
+      settingsStore.subscribe((value) => {
+        this.settings = value;
+      })
+    );
     // Handle Settings
     this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
     this.addSettingTab(new BetterWordCountSettingsTab(this.app, this));

@@ -26,7 +26,7 @@ export interface BetterWordCountSettings {
   collectStats: boolean;
 }
 
-export const DEFAULT_SETTINGS: BetterWordCountSettings = {
+export const DEFAULT_SETTINGS: BetterWordCountSettings = Object.freeze({
   statusBar: [
     {
       prefix: "",
@@ -41,4 +41,4 @@ export const DEFAULT_SETTINGS: BetterWordCountSettings = {
   ],
   countComments: false,
   collectStats: false,
-};
+});

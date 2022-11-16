@@ -1,9 +1,11 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import { STATS_ICON_NAME, VIEW_TYPE_STATS } from "src/constants";
+import type BetterWordCount from "src/main";
 //@ts-ignore
 import Statistics from "./Statistics.svelte";
 
 export default class StatsView extends ItemView {
+  private plugin: BetterWordCount;
   private statistics: Statistics;
 
   constructor(leaf: WorkspaceLeaf) {

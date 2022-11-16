@@ -22,7 +22,7 @@ export default class StatusBar {
     );
 
     this.statusBarEl.classList.add("mod-clickable");
-    this.statusBarEl.setAttribute("aria-label", "Open Stats View");
+    this.statusBarEl.setAttribute("aria-label", "Coming Soon");
     this.statusBarEl.setAttribute("aria-label-position", "top");
     this.statusBarEl.addEventListener("click", (ev: MouseEvent) =>
       this.onClick(ev)
