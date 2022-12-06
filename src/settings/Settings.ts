@@ -1,44 +1,74 @@
-export enum Counter {
-  fileWords,
-  fileChars,
-  fileSentences,
-  totalWords,
-  totalChars,
-  totalSentences,
-  totalNotes,
+export enum MetricCounter {
+  words,
+  characters,
+  sentences,
+  files,
+}
+
+export enum MetricType {
+  file,
+  daily,
+  total,
+  folder,
+}
+
+export interface Metric {
+  type: MetricType;
+  counter: MetricCounter;
+  folder?: string;
 }
 
 export interface StatusBarItem {
   prefix: string;
   suffix: string;
-  count: Counter;
+  metric: Metric;
 }
 
 export const BLANK_SB_ITEM: StatusBarItem = {
   prefix: "",
   suffix: "",
-  count: null,
+  metric: {
+    type: null,
+    counter: null,
+  },
 };
 
 export interface BetterWordCountSettings {
   statusBar: StatusBarItem[];
+  altBar: StatusBarItem[];
   countComments: boolean;
   collectStats: boolean;
 }
 
-export const DEFAULT_SETTINGS: BetterWordCountSettings = Object.freeze({
+export const DEFAULT_SETTINGS: BetterWordCountSettings = {
   statusBar: [
     {
       prefix: "",
       suffix: " words",
-      count: Counter.fileWords,
+      metric: {
+        type: MetricType.file,
+        counter: MetricCounter.words,
+      },
     },
     {
       prefix: " ",
       suffix: " characters",
-      count: Counter.fileChars,
+      metric: {
+        type: MetricType.file,
+        counter: MetricCounter.characters,
+      },
+    },
+  ],
+  altBar: [
+    {
+      prefix: "",
+      suffix: "files",
+      metric: {
+        type: MetricType.total,
+        counter: MetricCounter.files,
+      },
     },
   ],
   countComments: false,
   collectStats: false,
-});
+};

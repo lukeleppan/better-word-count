@@ -1,9 +1,6 @@
 import { debounce, Debouncer, TFile, Vault, Workspace } from "obsidian";
 import { STATS_FILE } from "../constants";
-import type {
-  Day,
-  VaultStatistics,
-} from "./Stats";
+import type { Day, VaultStatistics } from "./Stats";
 import moment from "moment";
 import {
   getCharacterCount,
@@ -21,7 +18,11 @@ export default class StatsManager {
   constructor(vault: Vault, workspace: Workspace) {
     this.vault = vault;
     this.workspace = workspace;
-    this.debounceChange = debounce((text:string) => this.change(text), 50, false)
+    this.debounceChange = debounce(
+      (text: string) => this.change(text),
+      50,
+      false
+    );
 
     this.vault.adapter.exists(STATS_FILE).then(async (exists) => {
       if (!exists) {
@@ -32,6 +33,14 @@ export default class StatsManager {
         await this.vault.adapter.write(STATS_FILE, JSON.stringify(vaultSt));
         this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
       } else {
+        this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
+        if (!this.vaultStats.hasOwnProperty("history")) {
+          const vaultSt: VaultStatistics = {
+            history: {},
+            modifiedFiles: {},
+          };
+          await this.vault.adapter.write(STATS_FILE, JSON.stringify(vaultSt));
+        }
         this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
       }
 
@@ -81,14 +90,15 @@ export default class StatsManager {
       let modFiles = this.vaultStats.modifiedFiles;
 
       if (modFiles.hasOwnProperty(fileName)) {
-        this.vaultStats.history[this.today].totalWords += currentWords - modFiles[fileName].words.current;
-        this.vaultStats.history[this.today].totalCharacters += currentCharacters - modFiles[fileName].characters.current;
-        this.vaultStats.history[this.today].totalSentences += currentSentences - modFiles[fileName].sentences.current;
+        this.vaultStats.history[this.today].totalWords +=
+          currentWords - modFiles[fileName].words.current;
+        this.vaultStats.history[this.today].totalCharacters +=
+          currentCharacters - modFiles[fileName].characters.current;
+        this.vaultStats.history[this.today].totalSentences +=
+          currentSentences - modFiles[fileName].sentences.current;
         modFiles[fileName].words.current = currentWords;
         modFiles[fileName].characters.current = currentCharacters;
         modFiles[fileName].sentences.current = currentSentences;
-
-        
       } else {
         modFiles[fileName] = {
           words: {
@@ -102,7 +112,7 @@ export default class StatsManager {
           sentences: {
             initial: currentSentences,
             current: currentSentences,
-          }
+          },
         };
       }
 
@@ -141,8 +151,8 @@ export default class StatsManager {
     ) {
       const todayHist: Day = this.vaultStats.history[this.today];
       todayHist.totalWords = await this.calcTotalWords();
-      todayHist.totalCharacters = await this.calcTotalCharacters()
-      todayHist.totalSentences = await this.calcTotalSentences()
+      todayHist.totalCharacters = await this.calcTotalCharacters();
+      todayHist.totalSentences = await this.calcTotalSentences();
       this.update();
     } else {
       this.updateToday();
@@ -186,6 +196,18 @@ export default class StatsManager {
     }
 
     return sentence;
+  }
+
+  public getDailyWords(): number {
+    return this.vaultStats.history[this.today].words;
+  }
+
+  public getDailyCharacters(): number {
+    return this.vaultStats.history[this.today].characters;
+  }
+
+  public getDailySentences(): number {
+    return this.vaultStats.history[this.today].sentences;
   }
 
   public getTotalFiles(): number {

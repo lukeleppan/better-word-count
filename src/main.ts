@@ -22,11 +22,11 @@ export default class BetterWordCount extends Plugin {
 
   async onload() {
     // Settings Store
-    this.register(
-      settingsStore.subscribe((value) => {
-        this.settings = value;
-      })
-    );
+    // this.register(
+    //   settingsStore.subscribe((value) => {
+    //     this.settings = value;
+    //   })
+    // );
     // Handle Settings
     this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
     this.addSettingTab(new BetterWordCountSettingsTab(this.app, this));
@@ -51,14 +51,20 @@ export default class BetterWordCount extends Plugin {
       this.app.workspace.on(
         "active-leaf-change",
         async (leaf: WorkspaceLeaf) => {
-          await this.statsManager.recalcTotals();
           this.giveEditorPlugin(leaf);
+          if (leaf.view.getViewType() !== "markdown") {
+            this.statusBar.updateAltBar();
+          }
+
+          if (!this.settings.collectStats) return;
+          await this.statsManager.recalcTotals();
         }
       )
     );
 
     this.registerEvent(
       this.app.vault.on("delete", async () => {
+        if (!this.settings.collectStats) return;
         await this.statsManager.recalcTotals();
       })
     );

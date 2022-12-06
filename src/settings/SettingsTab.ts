@@ -18,7 +18,7 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Collect Statistics")
       .setDesc(
-        "Reload Required for change to take effect. Turn on to start collecting daily statistics of your writing. Stored in the .vault-stats file in the root of your vault. This is required for counts of the day."
+        "Reload Required for change to take effect. Turn on to start collecting daily statistics of your writing. Stored in the vault-stats.json file in the .obsidian of your vault. This is required for counts of the day as well as total counts."
       )
       .addToggle((cb: ToggleComponent) => {
         cb.setValue(this.plugin.settings.collectStats);
@@ -39,13 +39,6 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
       });
 
     // Status Bar Settings
-    containerEl
-      .createEl("h4", { text: "Status Bar Settings" })
-      .addClass("bwc-status-bar-settings-title");
-    containerEl.createEl("p", {
-      text: "Here you can customize what statistics are displayed on the status bar.",
-    });
-
     addStatusBarSettings(this.plugin, containerEl);
   }
 }

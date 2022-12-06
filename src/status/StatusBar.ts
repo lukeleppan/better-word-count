@@ -1,4 +1,4 @@
-import { Counter } from "src/settings/Settings";
+import { MetricCounter, MetricType } from "src/settings/Settings";
 import type BetterWordCount from "../main";
 import {
   getWordCount,
@@ -45,33 +45,194 @@ export default class StatusBar {
       const sbItem = sb[i];
 
       display = display + sbItem.prefix;
-      switch (sbItem.count) {
-        case Counter.fileWords:
-          display = display + getWordCount(text);
-          break;
-        case Counter.fileChars:
-          display = display + getCharacterCount(text);
-          break;
-        case Counter.fileSentences:
-          display = display + getSentenceCount(text);
-          break;
-        case Counter.totalWords:
-          display = display + (await this.plugin.statsManager.getTotalWords());
-          break;
-        case Counter.totalChars:
-          display =
-            display + (await this.plugin.statsManager.getTotalCharacters());
-          break;
-        case Counter.totalSentences:
-          display =
-            display + (await this.plugin.statsManager.getTotalSentences());
-          break;
-        case Counter.totalNotes:
-          display = display + this.plugin.statsManager.getTotalFiles();
-          break;
+      const metric = sbItem.metric;
 
-        default:
-          break;
+      if (metric.counter === MetricCounter.words) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + getWordCount(text);
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyWords()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalWords()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.characters) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + getCharacterCount(text);
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyCharacters()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalCharacters()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.sentences) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + getSentenceCount(text);
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailySentences()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalSentences()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.files) {
+        switch (metric.type) {
+          case MetricType.file:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalFiles()
+                : 0);
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalFiles()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalFiles()
+                : 0);
+            break;
+        }
+      }
+
+      display = display + sbItem.suffix;
+    }
+
+    this.displayText(display);
+  }
+
+  async updateAltBar() {
+    const ab = this.plugin.settings.altBar;
+    let display = "";
+
+    for (let i = 0; i < ab.length; i++) {
+      const sbItem = ab[i];
+
+      display = display + sbItem.prefix;
+      const metric = sbItem.metric;
+
+      if (metric.counter === MetricCounter.words) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + 0;
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyWords()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalWords()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.characters) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + 0;
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyCharacters()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalCharacters()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.sentences) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + 0;
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailySentences()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalSentences()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.files) {
+        switch (metric.type) {
+          case MetricType.file:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalFiles()
+                : 0);
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalFiles()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalFiles()
+                : 0);
+            break;
+        }
       }
 
       display = display + sbItem.suffix;

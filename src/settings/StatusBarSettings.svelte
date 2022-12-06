@@ -1,38 +1,50 @@
 <script lang="ts">
   import type { StatusBarItem } from "./Settings";
-  import { Counter, BLANK_SB_ITEM } from "./Settings";
+  import { MetricType, MetricCounter, BLANK_SB_ITEM, DEFAULT_SETTINGS } from "./Settings";
   import type BetterWordCount from "src/main";
 
   export let plugin: BetterWordCount;
   const { settings } = plugin;
 
   let statusItems: StatusBarItem[] = [...plugin.settings.statusBar];
+  let altSItems: StatusBarItem[] = [...plugin.settings.altBar];
 
-  function counterToString(count: Counter): string {
-    switch (count) {
-      case Counter.fileWords:
-        return "File Words";
-      
-      case Counter.fileChars:
-        return "File Chars";
-
-      case Counter.fileSentences:
-        return "File Sentences";
-
-      case Counter.totalWords:
-        return "Total Words";
-
-      case Counter.totalChars:
-        return "Total Chars";
-
-      case Counter.totalSentences:
-        return "Total Sentences"
-
-      case Counter.totalNotes:
-        return "Total Notes";
-
-      default:
-        return "Select Options"
+  function metricToString(metric: Metric): string {
+    if (metric.type === MetricType.file) {
+      switch (metric.counter) {
+        case MetricCounter.words:
+          return "Words in Note"
+        case MetricCounter.characters:
+          return "Chars in Note"
+        case MetricCounter.sentences:
+          return "Sentences in Note"
+        case MetricCounter.files:
+          return "Total Notes"
+      }
+    } else if (metric.type === MetricType.daily) {
+      switch (metric.counter) {
+        case MetricCounter.words:
+          return "Daily Words"
+        case MetricCounter.characters:
+          return "Daily Chars"
+        case MetricCounter.sentences:
+          return "Daily Sentences" 
+        case MetricCounter.files:
+          return "Total Notes"
+      }
+    } else if (metric.type === MetricType.total) {
+      switch (metric.counter) {
+        case MetricCounter.words:
+          return "Total Words"
+        case MetricCounter.characters:
+          return "Total Chars"
+        case MetricCounter.sentences:
+          return "Total Sentences"
+        case MetricCounter.files:
+          return "Total Notes"
+      }
+    } else {
+      return "Select Options"
     }
   }
 
@@ -47,19 +59,32 @@
 
   async function update(statusItems: StatusBarItem[]) {
     plugin.settings.statusBar = statusItems.filter((item) => {
-      if (counterToString(item.count) !== "Select Options") {
+      if (metricToString(item.metric) !== "Select Options") {
         return item;
       } 
     });
+
+    await plugin.saveSettings();
+  }
+
+  async function updateAlt(altSItems: StatusBarItem[]) {
+    plugin.settings.altBar = altSItems.filter((item) => {
+      if (metricToString(item.metric) !== "Select Options") {
+        return item;
+      } 
+    });
+
     await plugin.saveSettings();
   }
 </script>
 
 <div>
+  <h4>Markdown Status Bar</h4>
+  <p>Here you can customize what statistics are displayed on the status bar when editing a markdown note.</p>
   <div class="bwc-sb-buttons">
     <button
       aria-label="Add New Status Bar Item"
-      on:click={async () => (statusItems = [...statusItems, Object.create(BLANK_SB_ITEM)])}
+      on:click={async () => (statusItems = [...statusItems, JSON.parse(JSON.stringify(BLANK_SB_ITEM))])}
     >
       <div class="icon">
         Add Item
@@ -68,19 +93,26 @@
     <button
       aria-label="Reset Status Bar to Default"
       on:click={async () => {
-      statusItems = [{
-          prefix: "",
-          suffix: " words",
-          count: Counter.fileWords,
-        },
-        {
-          prefix: " ",
-          suffix: " characters",
-          count: Counter.fileChars,
-        },
-      ];
-      await update(statusItems);
-      }}
+      statusItems = [
+    {
+      prefix: "",
+      suffix: " words",
+      metric: {
+        type: MetricType.file,
+        counter: MetricCounter.words,
+      },
+    },
+    {
+      prefix: " ",
+      suffix: " characters",
+      metric: {
+        type: MetricType.file,
+        counter: MetricCounter.characters,
+      },
+    },
+  ];
+                await update(statusItems);
+ }}
     >
       <div class="icon">
         Reset
@@ -91,7 +123,7 @@
     <details class="bwc-sb-item-setting">
       <summary>
         <span class="bwc-sb-item-text">
-          {counterToString(item.count)}
+          {metricToString(item.metric)}
         </span>
         <span class="bwc-sb-buttons">
           {#if i !== 0}
@@ -129,39 +161,52 @@
       </summary>
       <div class="setting-item">
         <div class="setting-item-info">
-          <div class="setting-item-name">Count Type</div>
+          <div class="setting-item-name">Metric Counter</div>
           <div class="setting-item-description">
-            This is the type of counter that will be displayed.
+            Select the counter to display, e.g. words, characters.
           </div>
         </div>
         <div class="setting-item-control">
           <select 
             class="dropdown"
-            value={item.count}
+            value={item.metric.counter}
             on:change={async (e) => {
               const {value} = e.target;
-              item.count = Counter[Counter[value]];
+              item.metric.counter = MetricCounter[MetricCounter[value]];
               await update(statusItems);
               await plugin.saveSettings();
             }}
           >
             <option value>Select Option</option>
-            <optgroup label="Words">
-              <option value={Counter.fileWords}>{counterToString(Counter.fileWords)}</option>
-              <option value={Counter.totalWords}>{counterToString(Counter.totalWords)}</option>
-            </optgroup>
-            <optgroup label="Characters">
-              <option value={Counter.fileChars}>{counterToString(Counter.fileChars)}</option>
-              <option value={Counter.totalChars}>{counterToString(Counter.totalChars)}</option>
-            </optgroup>
-            <optgroup label="Sentences">
-              <option value={Counter.fileSentences}>{counterToString(Counter.fileSentences)}</option>
-              <option value={Counter.totalSentences}>{counterToString(Counter.totalSentences)}</option>
-            </optgroup>
-            <optgroup label="Notes">
-              <option value={Counter.totalNotes}>{counterToString(Counter.totalNotes)}</option>
-            </optgroup>
-
+            <option value={MetricCounter.words}>Words</option>
+            <option value={MetricCounter.characters}>Characters</option>
+            <option value={MetricCounter.sentences}>Sentences</option>
+            <option value={MetricCounter.files}>Files</option>
+         </select>
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-item-info">
+          <div class="setting-item-name">Metric Type</div>
+          <div class="setting-item-description">
+            Select the type of metric that you want displayed.
+          </div>
+        </div>
+        <div class="setting-item-control">
+          <select 
+            class="dropdown"
+            value={item.metric.type}
+            on:change={async (e) => {
+              const {value} = e.target;
+              item.metric.type = MetricType[MetricType[value]];
+              await update(statusItems);
+              await plugin.saveSettings();
+            }}
+          >
+            <option value>Select Option</option>
+              <option value={MetricType.file}>Current Note</option>
+              <option value={MetricType.daily}>Daily Metric</option>
+              <option value={MetricType.total}>Total in Vault</option>
          </select>
         </div>
       </div>
@@ -202,6 +247,173 @@
               const { value } = e.target;
               item.suffix = value;
               await update(statusItems);
+              await plugin.saveSettings();
+            }}
+            />
+        </div>
+      </div>
+    </details>
+  {/each}
+  <h4>Alternative Status Bar</h4>
+  <p>Here you can customize what statistics are displayed on the status bar when not editing a markdown file.</p>
+  <div class="bwc-sb-buttons">
+    <button
+      aria-label="Add New Status Bar Item"
+      on:click={async () => (altSItems = [...altSItems, JSON.parse(JSON.stringify(BLANK_SB_ITEM))])}
+    >
+      <div class="icon">
+        Add Item
+      </div>
+    </button>
+    <button
+      aria-label="Reset Status Bar to Default"
+      on:click={async () => {
+      altSItems = [
+    {
+      prefix: "",
+      suffix: " files",
+      metric: {
+        type: MetricType.total,
+        counter: MetricCounter.files,
+      },
+    },
+  ];
+                await update(statusItems);
+ }}
+    >
+      <div class="icon">
+        Reset
+      </div>
+    </button>
+  </div>
+  {#each altSItems as item, i}
+    <details class="bwc-sb-item-setting">
+      <summary>
+        <span class="bwc-sb-item-text">
+          {metricToString(item.metric)}
+        </span>
+        <span class="bwc-sb-buttons">
+          {#if i !== 0}
+            <button
+              aria-label="Move Status Bar Item Up"
+              on:click={async () => {
+                altSItems = swapStatusBarItems(i, i-1, altSItems);
+                await updateAlt(altSItems);
+              }}
+            >
+              ↑
+            </button>
+          {/if}
+          {#if i !== altSItems.length - 1}
+          <button
+            aria-label="Move Status Bar Item Down"
+            on:click={async () => {
+              altSItems = swapStatusBarItems(i, i+1, altSItems);
+              await updateAlt(altSItems);
+            }}
+          >
+            ↓
+          </button>
+          {/if}
+          <button
+            aria-label="Remove Status Bar Item"
+            on:click={async () => {
+              altSItems = altSItems.filter((item, j) => i !== j);
+              await updateAlt(altSItems);
+            }}
+          >
+            X
+          </button>
+        </span>
+      </summary>
+      <div class="setting-item">
+        <div class="setting-item-info">
+          <div class="setting-item-name">Metric Counter</div>
+          <div class="setting-item-description">
+            Select the counter to display, e.g. words, characters.
+          </div>
+        </div>
+        <div class="setting-item-control">
+          <select 
+            class="dropdown"
+            value={item.metric.counter}
+            on:change={async (e) => {
+              const {value} = e.target;
+              item.metric.counter = MetricCounter[MetricCounter[value]];
+              await updateAlt(altSItems);
+              await plugin.saveSettings();
+            }}
+          >
+            <option value>Select Option</option>
+            <option value={MetricCounter.words}>Words</option>
+            <option value={MetricCounter.characters}>Characters</option>
+            <option value={MetricCounter.sentences}>Sentences</option>
+            <option value={MetricCounter.files}>Files</option>
+         </select>
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-item-info">
+          <div class="setting-item-name">Metric Type</div>
+          <div class="setting-item-description">
+            Select the type of metric that you want displayed.
+          </div>
+        </div>
+        <div class="setting-item-control">
+          <select 
+            class="dropdown"
+            value={item.metric.type}
+            on:change={async (e) => {
+              const {value} = e.target;
+              item.metric.type = MetricType[MetricType[value]];
+              await updateAlt(altSItems);
+              await plugin.saveSettings();
+            }}
+          >
+            <option value>Select Option</option>
+              <option value={MetricType.file}>Current Note</option>
+              <option value={MetricType.daily}>Daily Metric</option>
+              <option value={MetricType.total}>Total in Vault</option>
+         </select>
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-item-info">
+          <div class="setting-item-name">Prefix Text</div>
+          <div class="setting-item-description">
+            This is the text that is placed before the count.
+          </div>
+        </div>
+        <div class="setting-item-control">
+          <input 
+            type="text"
+            name="prefix"
+            value={item.prefix}
+            on:change={async (e) => {
+              const { value } = e.target;
+              item.prefix = value;
+              await updateAlt(altSItems);
+              await plugin.saveSettings();
+            }}
+            />
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-item-info">
+          <div class="setting-item-name">Suffix Text</div>
+          <div class="setting-item-description">
+            This is the text that is placed after the count.
+          </div>
+        </div>
+        <div class="setting-item-control">
+          <input 
+            type="text"
+            name="suffix"
+            value={item.suffix}
+            on:change={async (e) => {
+              const { value } = e.target;
+              item.suffix = value;
+              await updateAlt(altSItems);
               await plugin.saveSettings();
             }}
             />
