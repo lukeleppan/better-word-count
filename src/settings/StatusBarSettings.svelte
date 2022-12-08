@@ -1,6 +1,12 @@
 <script lang="ts">
   import type { StatusBarItem } from "./Settings";
-  import { MetricType, MetricCounter, BLANK_SB_ITEM, DEFAULT_SETTINGS } from "./Settings";
+  import {
+    Metric,
+    MetricType,
+    MetricCounter,
+    BLANK_SB_ITEM,
+    DEFAULT_SETTINGS,
+  } from "./Settings";
   import type BetterWordCount from "src/main";
 
   export let plugin: BetterWordCount;
@@ -13,38 +19,44 @@
     if (metric.type === MetricType.file) {
       switch (metric.counter) {
         case MetricCounter.words:
-          return "Words in Note"
+          return "Words in Note";
         case MetricCounter.characters:
-          return "Chars in Note"
+          return "Chars in Note";
         case MetricCounter.sentences:
-          return "Sentences in Note"
+          return "Sentences in Note";
         case MetricCounter.files:
-          return "Total Notes"
+          return "Total Notes";
+        default:
+          return "Select Options";
       }
     } else if (metric.type === MetricType.daily) {
       switch (metric.counter) {
         case MetricCounter.words:
-          return "Daily Words"
+          return "Daily Words";
         case MetricCounter.characters:
-          return "Daily Chars"
+          return "Daily Chars";
         case MetricCounter.sentences:
-          return "Daily Sentences" 
+          return "Daily Sentences";
         case MetricCounter.files:
-          return "Total Notes"
+          return "Total Notes";
+        default:
+          return "Select Options";
       }
     } else if (metric.type === MetricType.total) {
       switch (metric.counter) {
         case MetricCounter.words:
-          return "Total Words"
+          return "Total Words";
         case MetricCounter.characters:
-          return "Total Chars"
+          return "Total Chars";
         case MetricCounter.sentences:
-          return "Total Sentences"
+          return "Total Sentences";
         case MetricCounter.files:
-          return "Total Notes"
+          return "Total Notes";
+        default:
+          return "Select Options";
       }
     } else {
-      return "Select Options"
+      return "Select Options";
     }
   }
 
@@ -61,7 +73,7 @@
     plugin.settings.statusBar = statusItems.filter((item) => {
       if (metricToString(item.metric) !== "Select Options") {
         return item;
-      } 
+      }
     });
 
     await plugin.saveSettings();
@@ -71,7 +83,7 @@
     plugin.settings.altBar = altSItems.filter((item) => {
       if (metricToString(item.metric) !== "Select Options") {
         return item;
-      } 
+      }
     });
 
     await plugin.saveSettings();
@@ -80,43 +92,46 @@
 
 <div>
   <h4>Markdown Status Bar</h4>
-  <p>Here you can customize what statistics are displayed on the status bar when editing a markdown note.</p>
+  <p>
+    Here you can customize what statistics are displayed on the status bar when
+    editing a markdown note.
+  </p>
   <div class="bwc-sb-buttons">
     <button
       aria-label="Add New Status Bar Item"
-      on:click={async () => (statusItems = [...statusItems, JSON.parse(JSON.stringify(BLANK_SB_ITEM))])}
+      on:click={async () =>
+        (statusItems = [
+          ...statusItems,
+          JSON.parse(JSON.stringify(BLANK_SB_ITEM)),
+        ])}
     >
-      <div class="icon">
-        Add Item
-      </div>
+      <div class="icon">Add Item</div>
     </button>
     <button
       aria-label="Reset Status Bar to Default"
       on:click={async () => {
-      statusItems = [
-    {
-      prefix: "",
-      suffix: " words",
-      metric: {
-        type: MetricType.file,
-        counter: MetricCounter.words,
-      },
-    },
-    {
-      prefix: " ",
-      suffix: " characters",
-      metric: {
-        type: MetricType.file,
-        counter: MetricCounter.characters,
-      },
-    },
-  ];
-                await update(statusItems);
- }}
+        statusItems = [
+          {
+            prefix: "",
+            suffix: " words",
+            metric: {
+              type: MetricType.file,
+              counter: MetricCounter.words,
+            },
+          },
+          {
+            prefix: " ",
+            suffix: " characters",
+            metric: {
+              type: MetricType.file,
+              counter: MetricCounter.characters,
+            },
+          },
+        ];
+        await update(statusItems);
+      }}
     >
-      <div class="icon">
-        Reset
-      </div>
+      <div class="icon">Reset</div>
     </button>
   </div>
   {#each statusItems as item, i}
@@ -130,7 +145,7 @@
             <button
               aria-label="Move Status Bar Item Up"
               on:click={async () => {
-                statusItems = swapStatusBarItems(i, i-1, statusItems);
+                statusItems = swapStatusBarItems(i, i - 1, statusItems);
                 await update(statusItems);
               }}
             >
@@ -138,15 +153,15 @@
             </button>
           {/if}
           {#if i !== statusItems.length - 1}
-          <button
-            aria-label="Move Status Bar Item Down"
-            on:click={async () => {
-              statusItems = swapStatusBarItems(i, i+1, statusItems);
-              await update(statusItems);
-            }}
-          >
-            ↓
-          </button>
+            <button
+              aria-label="Move Status Bar Item Down"
+              on:click={async () => {
+                statusItems = swapStatusBarItems(i, i + 1, statusItems);
+                await update(statusItems);
+              }}
+            >
+              ↓
+            </button>
           {/if}
           <button
             aria-label="Remove Status Bar Item"
@@ -167,11 +182,11 @@
           </div>
         </div>
         <div class="setting-item-control">
-          <select 
+          <select
             class="dropdown"
             value={item.metric.counter}
             on:change={async (e) => {
-              const {value} = e.target;
+              const { value } = e.target;
               item.metric.counter = MetricCounter[MetricCounter[value]];
               await update(statusItems);
               await plugin.saveSettings();
@@ -182,7 +197,7 @@
             <option value={MetricCounter.characters}>Characters</option>
             <option value={MetricCounter.sentences}>Sentences</option>
             <option value={MetricCounter.files}>Files</option>
-         </select>
+          </select>
         </div>
       </div>
       <div class="setting-item">
@@ -193,21 +208,21 @@
           </div>
         </div>
         <div class="setting-item-control">
-          <select 
+          <select
             class="dropdown"
             value={item.metric.type}
             on:change={async (e) => {
-              const {value} = e.target;
+              const { value } = e.target;
               item.metric.type = MetricType[MetricType[value]];
               await update(statusItems);
               await plugin.saveSettings();
             }}
           >
             <option value>Select Option</option>
-              <option value={MetricType.file}>Current Note</option>
-              <option value={MetricType.daily}>Daily Metric</option>
-              <option value={MetricType.total}>Total in Vault</option>
-         </select>
+            <option value={MetricType.file}>Current Note</option>
+            <option value={MetricType.daily}>Daily Metric</option>
+            <option value={MetricType.total}>Total in Vault</option>
+          </select>
         </div>
       </div>
       <div class="setting-item">
@@ -218,7 +233,7 @@
           </div>
         </div>
         <div class="setting-item-control">
-          <input 
+          <input
             type="text"
             name="prefix"
             value={item.prefix}
@@ -228,7 +243,7 @@
               await update(statusItems);
               await plugin.saveSettings();
             }}
-            />
+          />
         </div>
       </div>
       <div class="setting-item">
@@ -239,7 +254,7 @@
           </div>
         </div>
         <div class="setting-item-control">
-          <input 
+          <input
             type="text"
             name="suffix"
             value={item.suffix}
@@ -249,41 +264,41 @@
               await update(statusItems);
               await plugin.saveSettings();
             }}
-            />
+          />
         </div>
       </div>
     </details>
   {/each}
   <h4>Alternative Status Bar</h4>
-  <p>Here you can customize what statistics are displayed on the status bar when not editing a markdown file.</p>
+  <p>
+    Here you can customize what statistics are displayed on the status bar when
+    not editing a markdown file.
+  </p>
   <div class="bwc-sb-buttons">
     <button
       aria-label="Add New Status Bar Item"
-      on:click={async () => (altSItems = [...altSItems, JSON.parse(JSON.stringify(BLANK_SB_ITEM))])}
+      on:click={async () =>
+        (altSItems = [...altSItems, JSON.parse(JSON.stringify(BLANK_SB_ITEM))])}
     >
-      <div class="icon">
-        Add Item
-      </div>
+      <div class="icon">Add Item</div>
     </button>
     <button
       aria-label="Reset Status Bar to Default"
       on:click={async () => {
-      altSItems = [
-    {
-      prefix: "",
-      suffix: " files",
-      metric: {
-        type: MetricType.total,
-        counter: MetricCounter.files,
-      },
-    },
-  ];
-                await update(statusItems);
- }}
+        altSItems = [
+          {
+            prefix: "",
+            suffix: " files",
+            metric: {
+              type: MetricType.total,
+              counter: MetricCounter.files,
+            },
+          },
+        ];
+        await update(statusItems);
+      }}
     >
-      <div class="icon">
-        Reset
-      </div>
+      <div class="icon">Reset</div>
     </button>
   </div>
   {#each altSItems as item, i}
@@ -297,7 +312,7 @@
             <button
               aria-label="Move Status Bar Item Up"
               on:click={async () => {
-                altSItems = swapStatusBarItems(i, i-1, altSItems);
+                altSItems = swapStatusBarItems(i, i - 1, altSItems);
                 await updateAlt(altSItems);
               }}
             >
@@ -305,15 +320,15 @@
             </button>
           {/if}
           {#if i !== altSItems.length - 1}
-          <button
-            aria-label="Move Status Bar Item Down"
-            on:click={async () => {
-              altSItems = swapStatusBarItems(i, i+1, altSItems);
-              await updateAlt(altSItems);
-            }}
-          >
-            ↓
-          </button>
+            <button
+              aria-label="Move Status Bar Item Down"
+              on:click={async () => {
+                altSItems = swapStatusBarItems(i, i + 1, altSItems);
+                await updateAlt(altSItems);
+              }}
+            >
+              ↓
+            </button>
           {/if}
           <button
             aria-label="Remove Status Bar Item"
@@ -334,11 +349,11 @@
           </div>
         </div>
         <div class="setting-item-control">
-          <select 
+          <select
             class="dropdown"
             value={item.metric.counter}
             on:change={async (e) => {
-              const {value} = e.target;
+              const { value } = e.target;
               item.metric.counter = MetricCounter[MetricCounter[value]];
               await updateAlt(altSItems);
               await plugin.saveSettings();
@@ -349,7 +364,7 @@
             <option value={MetricCounter.characters}>Characters</option>
             <option value={MetricCounter.sentences}>Sentences</option>
             <option value={MetricCounter.files}>Files</option>
-         </select>
+          </select>
         </div>
       </div>
       <div class="setting-item">
@@ -360,21 +375,21 @@
           </div>
         </div>
         <div class="setting-item-control">
-          <select 
+          <select
             class="dropdown"
             value={item.metric.type}
             on:change={async (e) => {
-              const {value} = e.target;
+              const { value } = e.target;
               item.metric.type = MetricType[MetricType[value]];
               await updateAlt(altSItems);
               await plugin.saveSettings();
             }}
           >
             <option value>Select Option</option>
-              <option value={MetricType.file}>Current Note</option>
-              <option value={MetricType.daily}>Daily Metric</option>
-              <option value={MetricType.total}>Total in Vault</option>
-         </select>
+            <option value={MetricType.file}>Current Note</option>
+            <option value={MetricType.daily}>Daily Metric</option>
+            <option value={MetricType.total}>Total in Vault</option>
+          </select>
         </div>
       </div>
       <div class="setting-item">
@@ -385,7 +400,7 @@
           </div>
         </div>
         <div class="setting-item-control">
-          <input 
+          <input
             type="text"
             name="prefix"
             value={item.prefix}
@@ -395,7 +410,7 @@
               await updateAlt(altSItems);
               await plugin.saveSettings();
             }}
-            />
+          />
         </div>
       </div>
       <div class="setting-item">
@@ -406,7 +421,7 @@
           </div>
         </div>
         <div class="setting-item-control">
-          <input 
+          <input
             type="text"
             name="suffix"
             value={item.suffix}
@@ -416,7 +431,7 @@
               await updateAlt(altSItems);
               await plugin.saveSettings();
             }}
-            />
+          />
         </div>
       </div>
     </details>
