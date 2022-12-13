@@ -21,12 +21,6 @@ export default class BetterWordCount extends Plugin {
   }
 
   async onload() {
-    // Settings Store
-    // this.register(
-    //   settingsStore.subscribe((value) => {
-    //     this.settings = value;
-    //   })
-    // );
     // Handle Settings
     this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
     this.addSettingTab(new BetterWordCountSettingsTab(this.app, this));
