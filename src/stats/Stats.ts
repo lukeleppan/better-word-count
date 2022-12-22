@@ -1,26 +1,20 @@
 export interface VaultStatistics {
   history: History;
-  modifiedFiles: ModifiedFiles;
+  modifiedFiles?: ModifiedFiles;
 }
 
-export type History = Record<string, Day>;
+export type History = Record<string, StoreMetrics>;
 
-export interface Day {
-  words: number;
-  characters: number;
-  sentences: number;
-  files: number;
-  totalWords: number;
-  totalCharacters: number;
-  totalSentences: number;
-}
+export type ModifiedFiles = Record<string, StoreMetrics>;
 
-export type ModifiedFiles = Record<string, FileStat>;
-
-export interface FileStat {
-  words: CountDiff;
-  characters: CountDiff;
-  sentences: CountDiff;
+export interface StoreMetrics {
+  words?: CountDiff;
+  chars?: CountDiff;
+  sents?: CountDiff;
+  blocks?: CountDiff;
+  lines?: CountDiff;
+  notes?: CountDiff;
+  files?: CountDiff;
 }
 
 export interface CountDiff {
