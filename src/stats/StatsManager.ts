@@ -1,6 +1,6 @@
 import { debounce, Debouncer, TFile, Vault, Workspace } from "obsidian";
 import { STATS_FILE } from "../constants";
-import type { Day, VaultStatistics } from "./Stats";
+import type { StoreMetrics, VaultStatistics } from "./Stats";
 import moment from "moment";
 import {
   getCharacterCount,
@@ -26,26 +26,25 @@ export default class StatsManager {
 
     this.vault.adapter.exists(STATS_FILE).then(async (exists) => {
       if (!exists) {
-        const vaultSt: VaultStatistics = {
-          history: {},
-          modifiedFiles: {},
-        };
-        await this.vault.adapter.write(STATS_FILE, JSON.stringify(vaultSt));
-        this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
+        this.rewriteBlankFile();
       } else {
         this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
         if (!this.vaultStats.hasOwnProperty("history")) {
-          const vaultSt: VaultStatistics = {
-            history: {},
-            modifiedFiles: {},
-          };
-          await this.vault.adapter.write(STATS_FILE, JSON.stringify(vaultSt));
+          this.rewriteBlankFile();
         }
-        this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
       }
 
+      this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
       await this.updateToday();
     });
+  }
+
+  async rewriteBlankFile(): Promise<void> {
+    const vaultSt: VaultStatistics = {
+      history: {},
+      modifiedFiles: {},
+    };
+    await this.vault.adapter.write(STATS_FILE, JSON.stringify(vaultSt));
   }
 
   async update(): Promise<void> {
