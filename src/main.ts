@@ -72,7 +72,7 @@ export default class BetterWordCount extends Plugin {
 
   giveEditorPlugin(leaf: WorkspaceLeaf): void {
     //@ts-expect-error, not typed
-    const editor = leaf.view.editor;
+    const editor = leaf?.view?.editor;
     if (editor) {
       const editorView = editor.cm as EditorView;
       const editorPlug = editorView.plugin(editorPlugin);
