@@ -1,19 +1,15 @@
 <script lang="ts">
-  import type { StatusBarItem } from "./Settings";
+  import type { StatusBarItem, StatusBar } from "./Settings";
   import {
     Metric,
-    MetricType,
-    MetricCounter,
     BLANK_SB_ITEM,
     DEFAULT_SETTINGS,
   } from "./Settings";
   import type BetterWordCount from "src/main";
 
   export let plugin: BetterWordCount;
-  const { settings } = plugin;
 
-  let statusItems: StatusBarItem[] = [...plugin.settings.statusBar];
-  let altSItems: StatusBarItem[] = [...plugin.settings.altBar];
+  let statusBars: StatusBar[] = [...plugin.settings.statusBars];
 
   function metricToString(metric: Metric): string {
     if (metric.type === MetricType.file) {
@@ -91,73 +87,67 @@
 </script>
 
 <div>
-  <h4>Markdown Status Bar</h4>
-  <p>
-    Here you can customize what statistics are displayed on the status bar when
-    editing a markdown note.
-  </p>
+  <h3>Status Bar</h3>
   <div class="bwc-sb-buttons">
     <button
-      aria-label="Add New Status Bar Item"
+      aria-label="Add New Status Bar"
       on:click={async () =>
-        (statusItems = [
-          ...statusItems,
-          JSON.parse(JSON.stringify(BLANK_SB_ITEM)),
+        (statusBars = [
+          ...statusBars,
+          JSON.parse(JSON.stringify(DEFAULT_SETTINGS.statusBars[0])),
+          // TODO
         ])}
     >
-      <div class="icon">Add Item</div>
+      <div class="icon">Add Status Bar</div>
     </button>
     <button
       aria-label="Reset Status Bar to Default"
       on:click={async () => {
-        statusItems = [
-          {
-            prefix: "",
-            suffix: " words",
-            metric: {
-              type: MetricType.file,
-              counter: MetricCounter.words,
-            },
-          },
-          {
-            prefix: " ",
-            suffix: " characters",
-            metric: {
-              type: MetricType.file,
-              counter: MetricCounter.characters,
-            },
-          },
-        ];
-        await update(statusItems);
+        statusBars = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.statusBars));
+        // TODO;
       }}
     >
       <div class="icon">Reset</div>
     </button>
   </div>
-  {#each statusItems as item, i}
+  {#each statusBars as statusBar, i}
+  <h4>Status Bar #{i}</h4>
+  <div class="bwc-sb-buttons">
+    <button
+      aria-label="Add New Status Bar Item"
+      on:click={async () =>
+        (statusBar.items = [
+          ...statusBar.items,
+          JSON.parse(JSON.stringify(BLANK_SB_ITEM)),
+        ])}
+    >
+      <div class="icon">Add Item</div>
+    </button>
+  </div>
+  {#each statusBar.items as item, j}
     <details class="bwc-sb-item-setting">
       <summary>
         <span class="bwc-sb-item-text">
           {metricToString(item.metric)}
         </span>
         <span class="bwc-sb-buttons">
-          {#if i !== 0}
+          {#if j !== 0}
             <button
               aria-label="Move Status Bar Item Up"
               on:click={async () => {
-                statusItems = swapStatusBarItems(i, i - 1, statusItems);
-                await update(statusItems);
+                statusBar.items = swapStatusBarItems(j, j - 1, statusBar.items);
+                await update(statusBar.items);
               }}
             >
               ↑
             </button>
           {/if}
-          {#if i !== statusItems.length - 1}
+          {#if j !== statusBar.items.length - 1}
             <button
               aria-label="Move Status Bar Item Down"
               on:click={async () => {
-                statusItems = swapStatusBarItems(i, i + 1, statusItems);
-                await update(statusItems);
+                statusBar.items = swapStatusBarItems(j, j + 1, statusBar.items);
+                await update(statusBar.items);
               }}
             >
               ↓
@@ -166,8 +156,8 @@
           <button
             aria-label="Remove Status Bar Item"
             on:click={async () => {
-              statusItems = statusItems.filter((item, j) => i !== j);
-              await update(statusItems);
+              statusBar.items = statusBar.items.filter((item, j) => i !== j);
+              await update(statusBar.items);
             }}
           >
             X
@@ -269,6 +259,9 @@
       </div>
     </details>
   {/each}
+  {/each}
+  
+  
   <h4>Alternative Status Bar</h4>
   <p>
     Here you can customize what statistics are displayed on the status bar when

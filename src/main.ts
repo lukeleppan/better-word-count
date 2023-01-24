@@ -8,12 +8,11 @@ import {
   BetterWordCountSettings,
   DEFAULT_SETTINGS,
 } from "src/settings/Settings";
-import { settingsStore } from "./utils/SvelteStores";
 
 export default class BetterWordCount extends Plugin {
-  public settings: BetterWordCountSettings;
-  public statusBar: StatusBar;
-  public statsManager: StatsManager;
+  public settings: BetterWordCountSettings = DEFAULT_SETTINGS;
+  public statusBar: StatusBar = new StatusBar(this.addStatusBarItem(), this);
+  public statsManager: StatsManager | null = null;
 
   async onunload(): Promise<void> {
     this.statsManager = null;
@@ -22,17 +21,13 @@ export default class BetterWordCount extends Plugin {
 
   async onload() {
     // Handle Settings
-    this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
+    this.settings = { ...DEFAULT_SETTINGS, ...(await this.loadData()) };
     this.addSettingTab(new BetterWordCountSettingsTab(this.app, this));
 
     // Handle Statistics
     if (this.settings.collectStats) {
       this.statsManager = new StatsManager(this.app.vault, this.app.workspace);
     }
-
-    // Handle Status Bar
-    let statusBarEl = this.addStatusBarItem();
-    this.statusBar = new StatusBar(statusBarEl, this);
 
     // Handle the Editor Plugin
     this.registerEditorExtension(editorPlugin);

@@ -1,21 +1,23 @@
-export enum MetricCounter {
-  words,
-  characters,
-  sentences,
-  files,
-}
-
-export enum MetricType {
-  file,
-  daily,
-  total,
-  folder,
-}
+export type MetricType =
+  | "words"
+  | "chars"
+  | "sents"
+  | "blocks"
+  | "lines"
+  | "notes"
+  | "files";
 
 export interface Metric {
-  type: MetricType;
-  counter: MetricCounter;
-  folder?: string;
+  variant: "current" | "daily" | "total" | "file" | "folder";
+  metricType: MetricType;
+  path?: string;
+  date?: string;
+  operations: MetricOperation[];
+}
+
+export interface MetricOperation {
+  operation: "+" | "-" | "*" | "/";
+  metricOrValue: Metric | number;
 }
 
 export interface StatusBarItem {
@@ -24,51 +26,81 @@ export interface StatusBarItem {
   metric: Metric;
 }
 
+export interface StatusBar {
+  views: string[];
+  items: StatusBarItem[];
+}
+
 export const BLANK_SB_ITEM: StatusBarItem = {
   prefix: "",
   suffix: "",
-  metric: {
-    type: null,
-    counter: null,
-  },
+  metric: null,
 };
 
 export interface BetterWordCountSettings {
-  statusBar: StatusBarItem[];
-  altBar: StatusBarItem[];
+  statusBars: StatusBar[];
   countComments: boolean;
   collectStats: boolean;
+  storedStats: {
+    words?: boolean;
+    chars?: boolean;
+    sents?: boolean;
+    blocks?: boolean;
+    lines?: boolean;
+    notes?: boolean;
+    files?: boolean;
+  };
 }
 
 export const DEFAULT_SETTINGS: BetterWordCountSettings = {
-  statusBar: [
+  statusBars: [
     {
-      prefix: "",
-      suffix: " words",
-      metric: {
-        type: MetricType.file,
-        counter: MetricCounter.words,
-      },
+      views: ["markdown"],
+      items: [
+        {
+          prefix: "",
+          suffix: " words",
+          metric: {
+            variant: "current",
+            metricType: "words",
+            operations: [],
+          },
+        },
+        {
+          prefix: " ",
+          suffix: " characters",
+          metric: {
+            variant: "current",
+            metricType: "chars",
+            operations: [],
+          },
+        },
+      ],
     },
     {
-      prefix: " ",
-      suffix: " characters",
-      metric: {
-        type: MetricType.file,
-        counter: MetricCounter.characters,
-      },
-    },
-  ],
-  altBar: [
-    {
-      prefix: "",
-      suffix: " files",
-      metric: {
-        type: MetricType.total,
-        counter: MetricCounter.files,
-      },
+      views: ["default"],
+      items: [
+        {
+          prefix: "",
+          suffix: " files",
+          metric: {
+            variant: "total",
+            metricType: "files",
+            operations: [],
+          },
+        },
+      ],
     },
   ],
   countComments: false,
   collectStats: false,
+  storedStats: {
+    words: false,
+    chars: false,
+    sents: false,
+    blocks: false,
+    lines: false,
+    notes: false,
+    files: false,
+  },
 };

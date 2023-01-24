@@ -38,9 +38,14 @@ export default class StatusBar {
   }
 
   async updateStatusBar(text: string) {
-    const sb = this.plugin.settings.statusBar;
+    const sbs = this.plugin.settings.statusBars;
     let display = "";
 
+    for (let i = 0; i < sbs.length; i++) {
+      const sb = sbs[i];
+      
+      
+    }
     for (let i = 0; i < sb.length; i++) {
       const sbItem = sb[i];
 
