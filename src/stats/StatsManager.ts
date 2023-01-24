@@ -24,6 +24,12 @@ export default class StatsManager {
       false
     );
 
+    this.vault.on("rename", (new_name, old_path) => {
+      const content = this.vaultStats.modifiedFiles[old_path];
+      delete this.vaultStats.modifiedFiles[old_path];
+      this.vaultStats.modifiedFiles[new_name.path] = content;
+    });
+
     this.vault.adapter.exists(STATS_FILE).then(async (exists) => {
       if (!exists) {
         const vaultSt: VaultStatistics = {

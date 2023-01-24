@@ -25,6 +25,10 @@ This plugin is the same as the built-in **Word Count** plugin, except when you s
   - Added all word, char, sentence count when not viewing a markdown file.
 - @lishid
   - Helped solve the performace issue.
+- @THeK3nger
+  - Fixed issue that occured when renaming files.
+- @bakuzan
+  - Fixed issue that caused errors at start up.
 
 ### Special Thanks
 
