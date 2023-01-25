@@ -25,9 +25,17 @@ export default class StatsManager {
     );
 
     this.vault.on("rename", (new_name, old_path) => {
-      const content = this.vaultStats.modifiedFiles[old_path];
-      delete this.vaultStats.modifiedFiles[old_path];
-      this.vaultStats.modifiedFiles[new_name.path] = content;
+      if (this.vaultStats.modifiedFiles.hasOwnProperty(old_path)) {
+        const content = this.vaultStats.modifiedFiles[old_path];
+        delete this.vaultStats.modifiedFiles[old_path];
+        this.vaultStats.modifiedFiles[new_name.path] = content;
+      }
+    });
+
+    this.vault.on("delete", (deleted_file) => {
+      if (this.vaultStats.modifiedFiles.hasOwnProperty(deleted_file.path)) {
+        delete this.vaultStats.modifiedFiles[deleted_file.path];
+      }
     });
 
     this.vault.adapter.exists(STATS_FILE).then(async (exists) => {
