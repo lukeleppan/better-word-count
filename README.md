@@ -29,6 +29,8 @@ This plugin is the same as the built-in **Word Count** plugin, except when you s
   - Fixed issue that occured when renaming files.
 - @bakuzan
   - Fixed issue that caused errors at start up.
+- @Noxellar
+  - Fixed alt bar spacing issue.
 
 ### Special Thanks
 
