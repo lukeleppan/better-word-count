@@ -62,7 +62,7 @@ export const DEFAULT_SETTINGS: BetterWordCountSettings = {
   altBar: [
     {
       prefix: "",
-      suffix: "files",
+      suffix: " files",
       metric: {
         type: MetricType.total,
         counter: MetricCounter.files,
