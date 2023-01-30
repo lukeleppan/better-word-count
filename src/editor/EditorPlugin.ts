@@ -53,7 +53,6 @@ class EditorPlugin implements PluginValue {
       tr.isUserEvent("redo") ||
       tr.isUserEvent("select")
     ) {
-      console.log("OTHER EVENTS");
       const textIter = tr.newDoc.iter();
       let text = "";
       while (!textIter.done) {
