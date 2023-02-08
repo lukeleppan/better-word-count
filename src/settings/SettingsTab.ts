@@ -37,6 +37,18 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         });
       });
+    new Setting(containerEl)
+      .setName("Page Word Count")
+      .setDesc("Set how many words count as one \"page\"")
+      .addToggle((text: TextComponent) => {
+        text.inputEl.type = "number";
+        text.setPlaceholder("300");
+        text.setValue(this.plugin.settings.pageWords);
+        text.onChange(async (value) => {
+          this.plugin.settings.pageWords = value;
+          await this.plugin.saveSettings();
+      });
+    });
 
     // Status Bar Settings
     addStatusBarSettings(this.plugin, containerEl);
