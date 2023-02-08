@@ -4,6 +4,7 @@ import {
   getWordCount,
   getCharacterCount,
   getSentenceCount,
+  getPageCount,
 } from "src/utils/StatUtils";
 import { debounce } from "obsidian";
 
