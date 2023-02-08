@@ -44,8 +44,8 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
         text.inputEl.type = "number";
         text.setPlaceholder("300");
         text.setValue(this.plugin.settings.pageWords);
-        text.onChange(async (value: number) => {
-          this.plugin.settings.pageWords = value;
+        text.onChange(async (value: string) => {
+          this.plugin.settings.pageWords = parseInt(value);
           await this.plugin.saveSettings();
       });
     });
