@@ -1,4 +1,5 @@
-import { debounce, Debouncer, TFile, Vault, Workspace, Plugin } from "obsidian";
+import { debounce, Debouncer, TFile, Vault, Workspace } from "obsidian";
+import type BetterWordCount from "../main";
 import { STATS_FILE } from "../constants";
 import type { Day, VaultStatistics } from "./Stats";
 import moment from "moment";
@@ -12,12 +13,12 @@ import {
 export default class StatsManager {
   private vault: Vault;
   private workspace: Workspace;
-  private plugin: Plugin;
+  private plugin: BetterWordCount;
   private vaultStats: VaultStatistics;
   private today: string;
   public debounceChange;
 
-  constructor(vault: Vault, workspace: Workspace, plugin: Plugin) {
+  constructor(vault: Vault, workspace: Workspace, plugin: BetterWordCount) {
     this.vault = vault;
     this.workspace = workspace;
     this.plugin = plugin;
