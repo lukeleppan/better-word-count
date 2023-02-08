@@ -107,6 +107,26 @@ export default class StatusBar {
                 : 0));
             break;
         }
+      } else if (metric.counter === MetricCounter.pages) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + getPageCount(text, this.plugin.settings.pageWords);
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyPages()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalPages()
+                : 0));
+            break;
+        }
       } else if (metric.counter === MetricCounter.files) {
         switch (metric.type) {
           case MetricType.file:
@@ -206,6 +226,26 @@ export default class StatusBar {
               display +
               (await (this.plugin.settings.collectStats
                 ? this.plugin.statsManager.getTotalSentences()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.pages) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + 0;
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyPages()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalPages()
                 : 0));
             break;
         }
