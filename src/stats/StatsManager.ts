@@ -5,19 +5,22 @@ import moment from "moment";
 import {
   getCharacterCount,
   getSentenceCount,
+  getPageCount,
   getWordCount,
 } from "../utils/StatUtils";
 
 export default class StatsManager {
   private vault: Vault;
   private workspace: Workspace;
+  private plugin: Plugin;
   private vaultStats: VaultStatistics;
   private today: string;
   public debounceChange;
 
-  constructor(vault: Vault, workspace: Workspace) {
+  constructor(vault: Vault, workspace: Workspace, plugin: Plugin) {
     this.vault = vault;
     this.workspace = workspace;
+    this.plugin = plugin;
     this.debounceChange = debounce(
       (text: string) => this.change(text),
       50,
@@ -76,15 +79,18 @@ export default class StatsManager {
     const totalWords = await this.calcTotalWords();
     const totalCharacters = await this.calcTotalCharacters();
     const totalSentences = await this.calcTotalSentences();
+    const totalPages = await this.calcTotalPages();
 
     const newDay: Day = {
       words: 0,
       characters: 0,
       sentences: 0,
+      pages: 0,
       files: 0,
       totalWords: totalWords,
       totalCharacters: totalCharacters,
       totalSentences: totalSentences,
+      totalPages: totalPages,
     };
 
     this.vaultStats.modifiedFiles = {};
@@ -97,6 +103,8 @@ export default class StatsManager {
     const currentWords = getWordCount(text);
     const currentCharacters = getCharacterCount(text);
     const currentSentences = getSentenceCount(text);
+    const currentPages = getPageCount(text, this.plugin.settings.pageWords);
+    
     if (
       this.vaultStats.history.hasOwnProperty(this.today) &&
       this.today === moment().format("YYYY-MM-DD")
@@ -110,9 +118,12 @@ export default class StatsManager {
           currentCharacters - modFiles[fileName].characters.current;
         this.vaultStats.history[this.today].totalSentences +=
           currentSentences - modFiles[fileName].sentences.current;
+        this.vaultStats.history[this.today].totalPages +=
+          currentSentences - modFiles[fileName].pages.current;
         modFiles[fileName].words.current = currentWords;
         modFiles[fileName].characters.current = currentCharacters;
         modFiles[fileName].sentences.current = currentSentences;
+        modFiles[fileName].pages.current = currentPages;
       } else {
         modFiles[fileName] = {
           words: {
@@ -126,6 +137,10 @@ export default class StatsManager {
           sentences: {
             initial: currentSentences,
             current: currentSentences,
+          },
+          pages: {
+            initial: currentPages,
+            current: currentPages,
           },
         };
       }
@@ -145,10 +160,16 @@ export default class StatsManager {
           Math.max(0, counts.sentences.current - counts.sentences.initial)
         )
         .reduce((a, b) => a + b, 0);
+      const pages = Object.values(modFiles)
+        .map((counts) =>
+          Math.max(0, counts.pages.current - counts.pages.initial)
+        )
+        .reduce((a, b) => a + b, 0);
 
       this.vaultStats.history[this.today].words = words;
       this.vaultStats.history[this.today].characters = characters;
       this.vaultStats.history[this.today].sentences = sentences;
+      this.vaultStats.history[this.today].pages = pages;
       this.vaultStats.history[this.today].files = this.getTotalFiles();
 
       await this.update();
@@ -167,6 +188,7 @@ export default class StatsManager {
       todayHist.totalWords = await this.calcTotalWords();
       todayHist.totalCharacters = await this.calcTotalCharacters();
       todayHist.totalSentences = await this.calcTotalSentences();
+      todayHist.totalPages = await this.calcTotalPages();
       this.update();
     } else {
       this.updateToday();
@@ -211,6 +233,20 @@ export default class StatsManager {
 
     return sentence;
   }
+  
+  private async calcTotalPages(): Promise<number> {
+    let pages = 0;
+
+    const files = this.vault.getFiles();
+    for (const i in files) {
+      const file = files[i];
+      if (file.extension === "md") {
+        pages += getPageCount(await this.vault.cachedRead(file), this.plugin.settings.pageWords);
+      }
+    }
+
+    return pages;
+  }
 
   public getDailyWords(): number {
     return this.vaultStats.history[this.today].words;
@@ -222,6 +258,10 @@ export default class StatsManager {
 
   public getDailySentences(): number {
     return this.vaultStats.history[this.today].sentences;
+  }
+
+  public getDailyPages(): number {
+    return this.vaultStats.history[this.today].pages;
   }
 
   public getTotalFiles(): number {
@@ -241,5 +281,10 @@ export default class StatsManager {
   public async getTotalSentences(): Promise<number> {
     if (!this.vaultStats) return await this.calcTotalSentences();
     return this.vaultStats.history[this.today].totalSentences;
+  }
+
+  public async getTotalPages(): Promise<number> {
+    if (!this.vaultStats) return await this.calcTotalPages();
+    return this.vaultStats.history[this.today].totalPages;
   }
 }
