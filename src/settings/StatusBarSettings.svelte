@@ -18,6 +18,8 @@
           return "Chars in Note"
         case MetricCounter.sentences:
           return "Sentences in Note"
+        case MetricCounter.pages:
+          return "Pages in Note"
         case MetricCounter.files:
           return "Total Notes"
       }
@@ -29,6 +31,8 @@
           return "Daily Chars"
         case MetricCounter.sentences:
           return "Daily Sentences" 
+        case MetricCounter.pages:
+          return "Daily Pages"
         case MetricCounter.files:
           return "Total Notes"
       }
@@ -40,6 +44,8 @@
           return "Total Chars"
         case MetricCounter.sentences:
           return "Total Sentences"
+        case MetricCounter.pages:
+          return "Total Pages"
         case MetricCounter.files:
           return "Total Notes"
       }
@@ -181,6 +187,7 @@
             <option value={MetricCounter.words}>Words</option>
             <option value={MetricCounter.characters}>Characters</option>
             <option value={MetricCounter.sentences}>Sentences</option>
+            <option value={MetricCounter.pages}>Pages</option>
             <option value={MetricCounter.files}>Files</option>
          </select>
         </div>
@@ -348,6 +355,7 @@
             <option value={MetricCounter.words}>Words</option>
             <option value={MetricCounter.characters}>Characters</option>
             <option value={MetricCounter.sentences}>Sentences</option>
+            <option value={MetricCounter.pages}>Pages</option>
             <option value={MetricCounter.files}>Files</option>
          </select>
         </div>
