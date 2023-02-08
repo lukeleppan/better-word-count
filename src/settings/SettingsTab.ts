@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, ToggleComponent } from "obsidian";
+import { App, PluginSettingTab, Setting, ToggleComponent, TextComponent } from "obsidian";
 import type BetterWordCount from "src/main";
 import { addStatusBarSettings } from "./StatusBarSettings";
 
@@ -40,11 +40,11 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Page Word Count")
       .setDesc("Set how many words count as one \"page\"")
-      .addToggle((text: TextComponent) => {
+      .addText((text: TextComponent) => {
         text.inputEl.type = "number";
         text.setPlaceholder("300");
         text.setValue(this.plugin.settings.pageWords);
-        text.onChange(async (value) => {
+        text.onChange(async (value: number) => {
           this.plugin.settings.pageWords = value;
           await this.plugin.saveSettings();
       });
