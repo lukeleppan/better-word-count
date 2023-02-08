@@ -1,4 +1,4 @@
-import { debounce, Debouncer, TFile, Vault, Workspace } from "obsidian";
+import { debounce, Debouncer, TFile, Vault, Workspace, Plugin } from "obsidian";
 import { STATS_FILE } from "../constants";
 import type { Day, VaultStatistics } from "./Stats";
 import moment from "moment";
