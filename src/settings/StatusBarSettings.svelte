@@ -18,6 +18,10 @@
           return "Chars in Note"
         case MetricCounter.sentences:
           return "Sentences in Note"
+        case MetricCounter.footnotes:
+          return "Footnotes in Note"
+        case MetricCounter.citations:
+          return "Pandoc Citations in Note"
         case MetricCounter.files:
           return "Total Notes"
       }
@@ -29,6 +33,10 @@
           return "Daily Chars"
         case MetricCounter.sentences:
           return "Daily Sentences" 
+        case MetricCounter.footnotes:
+          return "Daily Footnotes"
+        case MetricCounter.citations:
+          return "Daily Citations"
         case MetricCounter.files:
           return "Total Notes"
       }
@@ -40,6 +48,10 @@
           return "Total Chars"
         case MetricCounter.sentences:
           return "Total Sentences"
+        case MetricCounter.citations:
+          return "Total Pandoc Citations"
+        case MetricCounter.footnotes:
+          return "Total Footnotes"
         case MetricCounter.files:
           return "Total Notes"
       }
@@ -181,6 +193,8 @@
             <option value={MetricCounter.words}>Words</option>
             <option value={MetricCounter.characters}>Characters</option>
             <option value={MetricCounter.sentences}>Sentences</option>
+            <option value={MetricCounter.footnotes}>Footnotes</option>
+            <option value={MetricCounter.citations}>Pandoc Citations</option>
             <option value={MetricCounter.files}>Files</option>
          </select>
         </div>
@@ -348,6 +362,8 @@
             <option value={MetricCounter.words}>Words</option>
             <option value={MetricCounter.characters}>Characters</option>
             <option value={MetricCounter.sentences}>Sentences</option>
+            <option value={MetricCounter.footnotes}>Footnotes</option>
+            <option value={MetricCounter.citations}>Pandoc Citations</option>
             <option value={MetricCounter.files}>Files</option>
          </select>
         </div>

@@ -10,14 +10,20 @@ export interface Day {
   characters: number;
   sentences: number;
   files: number;
+  footnotes: number;
+  citations: number;
   totalWords: number;
   totalCharacters: number;
   totalSentences: number;
+  totalFootnotes: number;
+  totalCitations: number;
 }
 
 export type ModifiedFiles = Record<string, FileStat>;
 
 export interface FileStat {
+  footnotes: CountDiff;
+  citations: CountDiff;
   words: CountDiff;
   characters: CountDiff;
   sentences: CountDiff;
