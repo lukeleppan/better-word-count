@@ -7,6 +7,7 @@ import {
   getCitationCount,
   getFootnoteCount,
   getPageCount,
+  cleanComments,
 } from "src/utils/StatUtils";
 import { debounce } from "obsidian";
 
@@ -25,7 +26,7 @@ export default class StatusBar {
     );
 
     this.statusBarEl.classList.add("mod-clickable");
-    this.statusBarEl.setAttribute("aria-label", "Coming Soon");
+    this.statusBarEl.setAttribute("aria-label", "!!!");
     this.statusBarEl.setAttribute("aria-label-position", "top");
     this.statusBarEl.addEventListener("click", (ev: MouseEvent) =>
       this.onClick(ev)
@@ -43,6 +44,10 @@ export default class StatusBar {
   async updateStatusBar(text: string) {
     const sb = this.plugin.settings.statusBar;
     let display = "";
+
+    if (!this.plugin.settings.countComments) {
+      text = cleanComments(text);
+    }
 
     for (let i = 0; i < sb.length; i++) {
       const sbItem = sb[i];

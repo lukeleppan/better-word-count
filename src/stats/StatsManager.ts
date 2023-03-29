@@ -10,6 +10,7 @@ import {
   getWordCount,
   getCitationCount,
   getFootnoteCount,
+  cleanComments,
 } from "../utils/StatUtils";
 
 export default class StatsManager {
@@ -108,6 +109,9 @@ export default class StatsManager {
   }
 
   public async change(text: string) {
+    if (this.plugin.settings.countComments) {
+      text = cleanComments(text);
+    }
     const fileName = this.workspace.getActiveFile().path;
     const currentWords = getWordCount(text);
     const currentCharacters = getCharacterCount(text);
