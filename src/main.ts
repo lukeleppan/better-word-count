@@ -33,7 +33,7 @@ export default class BetterWordCount extends Plugin {
 
     // Handle Statistics
     if (this.settings.collectStats) {
-      this.statsManager = new StatsManager(this.app.vault, this.app.workspace);
+      this.statsManager = new StatsManager(this.app.vault, this.app.workspace, this);
     }
 
     // Handle Status Bar

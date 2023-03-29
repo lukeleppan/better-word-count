@@ -37,6 +37,10 @@ export function getSentenceCount(text: string): number {
   return sentences;
 }
 
+export function getPageCount(text: string, pageWords: number): number {
+  return parseFloat((getWordCount(text) / pageWords).toFixed(1));
+}
+
 export function getTotalFileCount(vault: Vault): number {
   return vault.getMarkdownFiles().length;
 }
