@@ -120,7 +120,7 @@ export default class StatsManager {
         this.vaultStats.history[this.today].totalSentences +=
           currentSentences - modFiles[fileName].sentences.current;
         this.vaultStats.history[this.today].totalPages +=
-          currentSentences - modFiles[fileName].pages.current;
+          currentPages - modFiles[fileName].pages.current;
         modFiles[fileName].words.current = currentWords;
         modFiles[fileName].characters.current = currentCharacters;
         modFiles[fileName].sentences.current = currentSentences;
