@@ -20,12 +20,15 @@ This plugin is the same as the built-in **Word Count** plugin, except when you s
 
 - @leoccyao
   - Added all word, char, sentence count when not viewing a markdown file.
-- @lishid
-  - Helped solve the performance issue.
+- @chrisgrieser
+  - Added Footnotes and Citation Counting.
+- @bakuzan
+  - Added page counts.
+  - Fixed issue that caused errors at start up.
 - @THeK3nger
   - Fixed issue that occurred when renaming files.
-- @bakuzan
-  - Fixed issue that caused errors at start up.
+- @lishid
+  - Helped solve the performance issue.
 - @Noxellar
   - Fixed alt bar spacing issue.
 
