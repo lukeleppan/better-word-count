@@ -1,3 +1,4 @@
+import { Transaction } from "@codemirror/state";
 import {
   ViewUpdate,
   PluginValue,
@@ -22,9 +23,19 @@ class EditorPlugin implements PluginValue {
     }
 
     const tr = update.transactions[0];
-    if (!tr) return;
+
+    if (!tr) {
+      return;
+    }
+
+    // When selecting text with Shift+Home the userEventType is undefined.
+    // This is probably a bug in codemirror, for the time being doing an explict check
+    // for the type allows us to update the stats for the selection.
+    const userEventTypeUndefined =
+      tr.annotation(Transaction.userEvent) === undefined;
+
     if (
-      tr.isUserEvent("select") &&
+      (tr.isUserEvent("select") || userEventTypeUndefined) &&
       tr.newSelection.ranges[0].from !== tr.newSelection.ranges[0].to
     ) {
       let text = "";

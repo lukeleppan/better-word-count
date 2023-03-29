@@ -22,6 +22,8 @@
           return "Footnotes in Note"
         case MetricCounter.citations:
           return "Citations in Note"
+        case MetricCounter.pages:
+          return "Pages in Note"
         case MetricCounter.files:
           return "Total Notes"
       }
@@ -37,6 +39,8 @@
           return "Daily Footnotes"
         case MetricCounter.citations:
           return "Daily Citations"
+        case MetricCounter.pages:
+          return "Daily Pages"
         case MetricCounter.files:
           return "Total Notes"
       }
@@ -52,6 +56,8 @@
           return "Total Footnotes"
         case MetricCounter.citations:
             return "Total Citations"
+        case MetricCounter.pages:
+          return "Total Pages"
         case MetricCounter.files:
           return "Total Notes"
       }
@@ -195,6 +201,7 @@
             <option value={MetricCounter.sentences}>Sentences</option>
             <option value={MetricCounter.footnotes}>Footnotes</option>
             <option value={MetricCounter.citations}>Citations</option>
+            <option value={MetricCounter.pages}>Pages</option>
             <option value={MetricCounter.files}>Files</option>
          </select>
         </div>
@@ -364,6 +371,7 @@
             <option value={MetricCounter.sentences}>Sentences</option>
             <option value={MetricCounter.footnotes}>Footnotes</option>
             <option value={MetricCounter.citations}>Citations</option>
+            <option value={MetricCounter.pages}>Pages</option>
             <option value={MetricCounter.files}>Files</option>
          </select>
         </div>

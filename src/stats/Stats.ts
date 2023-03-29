@@ -9,6 +9,7 @@ export interface Day {
   words: number;
   characters: number;
   sentences: number;
+  pages: number;
   files: number;
   footnotes: number;
   citations: number;
@@ -17,6 +18,7 @@ export interface Day {
   totalSentences: number;
   totalFootnotes: number;
   totalCitations: number;
+  totalPages: number;
 }
 
 export type ModifiedFiles = Record<string, FileStat>;
@@ -27,6 +29,7 @@ export interface FileStat {
   words: CountDiff;
   characters: CountDiff;
   sentences: CountDiff;
+  pages: CountDiff;
 }
 
 export interface CountDiff {

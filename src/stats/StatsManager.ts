@@ -1,10 +1,12 @@
 import { debounce, Debouncer, TFile, Vault, Workspace } from "obsidian";
+import type BetterWordCount from "../main";
 import { STATS_FILE } from "../constants";
 import type { Day, VaultStatistics } from "./Stats";
 import moment from "moment";
 import {
   getCharacterCount,
   getSentenceCount,
+  getPageCount,
   getWordCount,
   getCitationCount,
   getFootnoteCount,
@@ -13,13 +15,15 @@ import {
 export default class StatsManager {
   private vault: Vault;
   private workspace: Workspace;
+  private plugin: BetterWordCount;
   private vaultStats: VaultStatistics;
   private today: string;
   public debounceChange;
 
-  constructor(vault: Vault, workspace: Workspace) {
+  constructor(vault: Vault, workspace: Workspace, plugin: BetterWordCount) {
     this.vault = vault;
     this.workspace = workspace;
+    this.plugin = plugin;
     this.debounceChange = debounce(
       (text: string) => this.change(text),
       50,
@@ -80,11 +84,13 @@ export default class StatsManager {
     const totalSentences = await this.calcTotalSentences();
     const totalFootnotes = await this.calcTotalFootnotes();
     const totalCitations = await this.calcTotalCitations();
+    const totalPages = await this.calcTotalPages();
 
     const newDay: Day = {
       words: 0,
       characters: 0,
       sentences: 0,
+      pages: 0,
       files: 0,
       footnotes: 0,
       citations: 0,
@@ -93,6 +99,7 @@ export default class StatsManager {
       totalSentences: totalSentences,
       totalFootnotes: totalFootnotes,
       totalCitations: totalCitations,
+      totalPages: totalPages,
     };
 
     this.vaultStats.modifiedFiles = {};
@@ -107,6 +114,8 @@ export default class StatsManager {
     const currentSentences = getSentenceCount(text);
     const currentCitations = getCitationCount(text);
     const currentFootnotes = getFootnoteCount(text);
+    const currentPages = getPageCount(text, this.plugin.settings.pageWords);
+    
     if (
       this.vaultStats.history.hasOwnProperty(this.today) &&
       this.today === moment().format("YYYY-MM-DD")
@@ -124,11 +133,15 @@ export default class StatsManager {
           currentSentences - modFiles[fileName].footnotes.current;
         this.vaultStats.history[this.today].totalCitations +=
           currentSentences - modFiles[fileName].citations.current;
+        this.vaultStats.history[this.today].totalPages +=
+          currentPages - modFiles[fileName].pages.current;
+         
         modFiles[fileName].words.current = currentWords;
         modFiles[fileName].characters.current = currentCharacters;
         modFiles[fileName].sentences.current = currentSentences;
-        modFiles[fileName].footnotes.current = currentSentences;
-        modFiles[fileName].citations.current = currentSentences;
+        modFiles[fileName].footnotes.current = currentFootnotes;
+        modFiles[fileName].citations.current = currentCitations;
+        modFiles[fileName].pages.current = currentPages;
       } else {
         modFiles[fileName] = {
           words: {
@@ -150,6 +163,9 @@ export default class StatsManager {
           citations: {
             initial: currentCitations,
             current: currentCitations,
+          pages: {
+            initial: currentPages,
+            current: currentPages,
           },
         };
       }
@@ -169,6 +185,7 @@ export default class StatsManager {
           Math.max(0, counts.sentences.current - counts.sentences.initial)
         )
         .reduce((a, b) => a + b, 0);
+
       const footnotes = Object.values(modFiles)
         .map((counts) =>
           Math.max(0, counts.footnotes.current - counts.footnotes.initial)
@@ -178,6 +195,10 @@ export default class StatsManager {
         .map((counts) =>
           Math.max(0, counts.citations.current - counts.citations.initial)
         )
+      const pages = Object.values(modFiles)
+        .map((counts) =>
+          Math.max(0, counts.pages.current - counts.pages.initial)
+        )
         .reduce((a, b) => a + b, 0);
 
       this.vaultStats.history[this.today].words = words;
@@ -185,6 +206,7 @@ export default class StatsManager {
       this.vaultStats.history[this.today].sentences = sentences;
       this.vaultStats.history[this.today].footnotes = footnotes;
       this.vaultStats.history[this.today].citations = citations;
+      this.vaultStats.history[this.today].pages = pages;
       this.vaultStats.history[this.today].files = this.getTotalFiles();
 
       await this.update();
@@ -205,6 +227,7 @@ export default class StatsManager {
       todayHist.totalSentences = await this.calcTotalSentences();
       todayHist.totalFootnotes = await this.calcTotalFootnotes();
       todayHist.totalCitations = await this.calcTotalCitations();
+      todayHist.totalPages = await this.calcTotalPages();
       this.update();
     } else {
       this.updateToday();
@@ -248,6 +271,20 @@ export default class StatsManager {
     }
     return sentence;
   }
+  
+  private async calcTotalPages(): Promise<number> {
+    let pages = 0;
+
+    const files = this.vault.getFiles();
+    for (const i in files) {
+      const file = files[i];
+      if (file.extension === "md") {
+        pages += getPageCount(await this.vault.cachedRead(file), this.plugin.settings.pageWords);
+      }
+    }
+
+    return pages;
+  }
 
   private async calcTotalFootnotes(): Promise<number> {
     let footnotes = 0;
@@ -285,12 +322,16 @@ export default class StatsManager {
     return this.vaultStats.history[this.today].sentences;
   }
 
+
   public getDailyFootnotes(): number {
     return this.vaultStats.history[this.today].footnotes;
   }
 
   public getDailyCitations(): number {
     return this.vaultStats.history[this.today].citations;
+  }
+  public getDailyPages(): number {
+    return this.vaultStats.history[this.today].pages;
   }
 
   public getTotalFiles(): number {
@@ -311,7 +352,7 @@ export default class StatsManager {
     if (!this.vaultStats) return await this.calcTotalSentences();
     return this.vaultStats.history[this.today].totalSentences;
   }
-
+  
   public async getTotalFootnotes(): Promise<number> {
     if (!this.vaultStats) return await this.calcTotalFootnotes();
     return this.vaultStats.history[this.today].totalFootnotes;
@@ -322,4 +363,8 @@ export default class StatsManager {
     return this.vaultStats.history[this.today].totalCitations;
   }
 
+  public async getTotalPages(): Promise<number> {
+    if (!this.vaultStats) return await this.calcTotalPages();
+    return this.vaultStats.history[this.today].totalPages;
+  }
 }

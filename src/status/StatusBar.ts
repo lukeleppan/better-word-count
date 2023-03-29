@@ -6,6 +6,7 @@ import {
   getSentenceCount,
   getCitationCount,
   getFootnoteCount,
+  getPageCount,
 } from "src/utils/StatUtils";
 import { debounce } from "obsidian";
 
@@ -149,6 +150,26 @@ export default class StatusBar {
                 : 0));
             break;
         }
+      } else if (metric.counter === MetricCounter.pages) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + getPageCount(text, this.plugin.settings.pageWords);
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyPages()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalPages()
+                : 0));
+            break;
+        }
       } else if (metric.counter === MetricCounter.files) {
         switch (metric.type) {
           case MetricType.file:
@@ -252,7 +273,7 @@ export default class StatusBar {
             break;
         }
       } else if (metric.counter === MetricCounter.footnotes) {
-        switch (metric.type) {
+      switch (metric.type) {
           case MetricType.file:
             display = display + 0;
             break;
@@ -260,14 +281,14 @@ export default class StatusBar {
             display =
               display +
               (this.plugin.settings.collectStats
-                ? this.plugin.statsManager.getDailyFootnotes()
-                : 0);
+              ? this.plugin.statsManager.getDailyFootnotes()
+                   : 0);
             break;
           case MetricType.total:
             display =
               display +
               (await (this.plugin.settings.collectStats
-                ? this.plugin.statsManager.getTotalFootnotes()
+              ? this.plugin.statsManager.getTotalFootnotes()
                 : 0));
             break;
         }
@@ -288,6 +309,26 @@ export default class StatusBar {
               display +
               (await (this.plugin.settings.collectStats
                 ? this.plugin.statsManager.getTotalCitations()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.pages) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + 0;
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyPages()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalPages()
                 : 0));
             break;
         }

@@ -4,6 +4,7 @@ export enum MetricCounter {
   sentences,
   footnotes,
   citations,
+  pages,
   files,
 }
 
@@ -40,6 +41,7 @@ export interface BetterWordCountSettings {
   altBar: StatusBarItem[];
   countComments: boolean;
   collectStats: boolean;
+  pageWords: number;
 }
 
 export const DEFAULT_SETTINGS: BetterWordCountSettings = {
@@ -73,4 +75,5 @@ export const DEFAULT_SETTINGS: BetterWordCountSettings = {
   ],
   countComments: false,
   collectStats: false,
+  pageWords: 300,
 };
