@@ -163,6 +163,7 @@ export default class StatsManager {
           citations: {
             initial: currentCitations,
             current: currentCitations,
+          },
           pages: {
             initial: currentPages,
             current: currentPages,
@@ -194,7 +195,7 @@ export default class StatsManager {
       const citations = Object.values(modFiles)
         .map((counts) =>
           Math.max(0, counts.citations.current - counts.citations.initial)
-        )
+        ).reduce((a, b) => a + b, 0);
       const pages = Object.values(modFiles)
         .map((counts) =>
           Math.max(0, counts.pages.current - counts.pages.initial)
