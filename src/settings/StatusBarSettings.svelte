@@ -18,6 +18,10 @@
           return "Chars in Note"
         case MetricCounter.sentences:
           return "Sentences in Note"
+        case MetricCounter.footnotes:
+          return "Footnotes in Note"
+        case MetricCounter.citations:
+          return "Citations in Note"
         case MetricCounter.pages:
           return "Pages in Note"
         case MetricCounter.files:
@@ -31,6 +35,10 @@
           return "Daily Chars"
         case MetricCounter.sentences:
           return "Daily Sentences" 
+        case MetricCounter.footnotes:
+          return "Daily Footnotes"
+        case MetricCounter.citations:
+          return "Daily Citations"
         case MetricCounter.pages:
           return "Daily Pages"
         case MetricCounter.files:
@@ -44,6 +52,10 @@
           return "Total Chars"
         case MetricCounter.sentences:
           return "Total Sentences"
+        case MetricCounter.footnotes:
+          return "Total Footnotes"
+        case MetricCounter.citations:
+            return "Total Citations"
         case MetricCounter.pages:
           return "Total Pages"
         case MetricCounter.files:
@@ -187,6 +199,8 @@
             <option value={MetricCounter.words}>Words</option>
             <option value={MetricCounter.characters}>Characters</option>
             <option value={MetricCounter.sentences}>Sentences</option>
+            <option value={MetricCounter.footnotes}>Footnotes</option>
+            <option value={MetricCounter.citations}>Citations</option>
             <option value={MetricCounter.pages}>Pages</option>
             <option value={MetricCounter.files}>Files</option>
          </select>
@@ -355,6 +369,8 @@
             <option value={MetricCounter.words}>Words</option>
             <option value={MetricCounter.characters}>Characters</option>
             <option value={MetricCounter.sentences}>Sentences</option>
+            <option value={MetricCounter.footnotes}>Footnotes</option>
+            <option value={MetricCounter.citations}>Citations</option>
             <option value={MetricCounter.pages}>Pages</option>
             <option value={MetricCounter.files}>Files</option>
          </select>

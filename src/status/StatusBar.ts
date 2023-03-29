@@ -4,6 +4,8 @@ import {
   getWordCount,
   getCharacterCount,
   getSentenceCount,
+  getCitationCount,
+  getFootnoteCount,
   getPageCount,
 } from "src/utils/StatUtils";
 import { debounce } from "obsidian";
@@ -105,6 +107,46 @@ export default class StatusBar {
               display +
               (await (this.plugin.settings.collectStats
                 ? this.plugin.statsManager.getTotalSentences()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.footnotes) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + getFootnoteCount(text);
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyFootnotes()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalFootnotes()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.citations) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + getCitationCount(text);
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyCitations()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalCitations()
                 : 0));
             break;
         }
@@ -227,6 +269,46 @@ export default class StatusBar {
               display +
               (await (this.plugin.settings.collectStats
                 ? this.plugin.statsManager.getTotalSentences()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.footnotes) {
+      switch (metric.type) {
+          case MetricType.file:
+            display = display + 0;
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+              ? this.plugin.statsManager.getDailyFootnotes()
+                   : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+              ? this.plugin.statsManager.getTotalFootnotes()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.citations) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + 0;
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyCitations()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalCitations()
                 : 0));
             break;
         }
