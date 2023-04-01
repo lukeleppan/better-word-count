@@ -1,14 +1,14 @@
-import { Plugin, TFile, WorkspaceLeaf } from "obsidian";
-import BetterWordCountSettingsTab from "./settings/SettingsTab";
-import StatsManager from "./stats/StatsManager";
-import StatusBar from "./status/StatusBar";
-import type { EditorView } from "@codemirror/view";
-import { editorPlugin } from "./editor/EditorPlugin";
+import {Plugin, TFile, WorkspaceLeaf} from 'obsidian';
+import BetterWordCountSettingsTab from './settings/SettingsTab';
+import StatsManager from './stats/StatsManager';
+import StatusBar from './status/StatusBar';
+import type {EditorView} from '@codemirror/view';
+import {editorPlugin} from './editor/EditorPlugin';
 import {
   BetterWordCountSettings,
   DEFAULT_SETTINGS,
-} from "src/settings/Settings";
-import { settingsStore } from "./utils/SvelteStores";
+} from 'src/settings/Settings';
+import {settingsStore} from './utils/SvelteStores';
 
 export default class BetterWordCount extends Plugin {
   public settings: BetterWordCountSettings;
@@ -37,7 +37,7 @@ export default class BetterWordCount extends Plugin {
     }
 
     // Handle Status Bar
-    let statusBarEl = this.addStatusBarItem();
+    const statusBarEl = this.addStatusBarItem();
     this.statusBar = new StatusBar(statusBarEl, this);
 
     // Handle the Editor Plugin
@@ -48,36 +48,36 @@ export default class BetterWordCount extends Plugin {
     });
 
     this.registerEvent(
-      this.app.workspace.on(
-        "active-leaf-change",
-        async (leaf: WorkspaceLeaf) => {
-          this.giveEditorPlugin(leaf);
-          if (leaf.view.getViewType() !== "markdown") {
-            this.statusBar.updateAltBar();
-          }
+        this.app.workspace.on(
+            'active-leaf-change',
+            async (leaf: WorkspaceLeaf) => {
+              this.giveEditorPlugin(leaf);
+              if (leaf.view.getViewType() !== 'markdown') {
+                this.statusBar.updateAltBar();
+              }
 
-          if (!this.settings.collectStats) return;
-          await this.statsManager.recalcTotals();
-        }
-      )
+              if (!this.settings.collectStats) return;
+              await this.statsManager.recalcTotals();
+            },
+        ),
     );
 
     this.registerEvent(
-      this.app.vault.on("delete", async () => {
-        if (!this.settings.collectStats) return;
-        await this.statsManager.recalcTotals();
-      })
+        this.app.vault.on('delete', async () => {
+          if (!this.settings.collectStats) return;
+          await this.statsManager.recalcTotals();
+        }),
     );
   }
 
   giveEditorPlugin(leaf: WorkspaceLeaf): void {
-    //@ts-expect-error, not typed
+    // @ts-expect-error, not typed
     const editor = leaf?.view?.editor;
     if (editor) {
       const editorView = editor.cm as EditorView;
       const editorPlug = editorView.plugin(editorPlugin);
       editorPlug.addPlugin(this);
-      //@ts-expect-error, not typed
+      // @ts-expect-error, not typed
       const data: string = leaf.view.data;
       this.statusBar.updateStatusBar(data);
     }

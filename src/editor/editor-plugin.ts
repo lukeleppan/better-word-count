@@ -1,11 +1,11 @@
-import { Transaction } from "@codemirror/state";
+import {Transaction} from '@codemirror/state';
 import {
   ViewUpdate,
   PluginValue,
   EditorView,
   ViewPlugin,
-} from "@codemirror/view";
-import type BetterWordCount from "src/main";
+} from '@codemirror/view';
+import type BetterWordCount from 'src/main';
 
 class EditorPlugin implements PluginValue {
   hasPlugin: boolean;
@@ -35,10 +35,10 @@ class EditorPlugin implements PluginValue {
       tr.annotation(Transaction.userEvent) === undefined;
 
     if (
-      (tr.isUserEvent("select") || userEventTypeUndefined) &&
+      (tr.isUserEvent('select') || userEventTypeUndefined) &&
       tr.newSelection.ranges[0].from !== tr.newSelection.ranges[0].to
     ) {
-      let text = "";
+      let text = '';
       const selection = tr.newSelection.main;
       const textIter = tr.newDoc.iterRange(selection.from, selection.to);
       while (!textIter.done) {
@@ -46,15 +46,15 @@ class EditorPlugin implements PluginValue {
       }
       this.plugin.statusBar.debounceStatusBarUpdate(text);
     } else if (
-      tr.isUserEvent("input") ||
-      tr.isUserEvent("delete") ||
-      tr.isUserEvent("move") ||
-      tr.isUserEvent("undo") ||
-      tr.isUserEvent("redo") ||
-      tr.isUserEvent("select")
+      tr.isUserEvent('input') ||
+      tr.isUserEvent('delete') ||
+      tr.isUserEvent('move') ||
+      tr.isUserEvent('undo') ||
+      tr.isUserEvent('redo') ||
+      tr.isUserEvent('select')
     ) {
       const textIter = tr.newDoc.iter();
-      let text = "";
+      let text = '';
       while (!textIter.done) {
         text = text + textIter.next().value;
       }

@@ -28,8 +28,8 @@ export interface StatusBarItem {
 }
 
 export const BLANK_SB_ITEM: StatusBarItem = {
-  prefix: "",
-  suffix: "",
+  prefix: '',
+  suffix: '',
   metric: {
     type: null,
     counter: null,
@@ -47,16 +47,16 @@ export interface BetterWordCountSettings {
 export const DEFAULT_SETTINGS: BetterWordCountSettings = {
   statusBar: [
     {
-      prefix: "",
-      suffix: " words",
+      prefix: '',
+      suffix: ' words',
       metric: {
         type: MetricType.file,
         counter: MetricCounter.words,
       },
     },
     {
-      prefix: " ",
-      suffix: " characters",
+      prefix: ' ',
+      suffix: ' characters',
       metric: {
         type: MetricType.file,
         counter: MetricCounter.characters,
@@ -65,8 +65,8 @@ export const DEFAULT_SETTINGS: BetterWordCountSettings = {
   ],
   altBar: [
     {
-      prefix: "",
-      suffix: " files",
+      prefix: '',
+      suffix: ' files',
       metric: {
         type: MetricType.total,
         counter: MetricCounter.files,

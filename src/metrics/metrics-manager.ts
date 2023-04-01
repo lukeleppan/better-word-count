@@ -1,8 +1,8 @@
-import { debounce, Debouncer, TFile, Vault, Workspace } from "obsidian";
-import type BetterWordCount from "../main";
-import { STATS_FILE } from "../constants";
-import type { Day, VaultStatistics } from "./Stats";
-import moment from "moment";
+import {debounce, Debouncer, TFile, Vault, Workspace} from 'obsidian';
+import type BetterWordCount from '../main';
+import {STATS_FILE} from '../constants';
+import type {Day, VaultStatistics} from './Stats';
+import moment from 'moment';
 import {
   getCharacterCount,
   getSentenceCount,
@@ -11,7 +11,7 @@ import {
   getCitationCount,
   getFootnoteCount,
   cleanComments,
-} from "../utils/StatUtils";
+} from '../utils/StatUtils';
 
 export default class StatsManager {
   private vault: Vault;
@@ -26,12 +26,12 @@ export default class StatsManager {
     this.workspace = workspace;
     this.plugin = plugin;
     this.debounceChange = debounce(
-      (text: string) => this.change(text),
-      50,
-      false
+        (text: string) => this.change(text),
+        50,
+        false,
     );
 
-    this.vault.on("rename", (new_name, old_path) => {
+    this.vault.on('rename', (new_name, old_path) => {
       if (this.vaultStats.modifiedFiles.hasOwnProperty(old_path)) {
         const content = this.vaultStats.modifiedFiles[old_path];
         delete this.vaultStats.modifiedFiles[old_path];
@@ -39,7 +39,7 @@ export default class StatsManager {
       }
     });
 
-    this.vault.on("delete", (deleted_file) => {
+    this.vault.on('delete', (deleted_file) => {
       if (this.vaultStats.modifiedFiles.hasOwnProperty(deleted_file.path)) {
         delete this.vaultStats.modifiedFiles[deleted_file.path];
       }
@@ -55,7 +55,7 @@ export default class StatsManager {
         this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
       } else {
         this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
-        if (!this.vaultStats.hasOwnProperty("history")) {
+        if (!this.vaultStats.hasOwnProperty('history')) {
           const vaultSt: VaultStatistics = {
             history: {},
             modifiedFiles: {},
@@ -74,12 +74,12 @@ export default class StatsManager {
   }
 
   async updateToday(): Promise<void> {
-    if (this.vaultStats.history.hasOwnProperty(moment().format("YYYY-MM-DD"))) {
-      this.today = moment().format("YYYY-MM-DD");
+    if (this.vaultStats.history.hasOwnProperty(moment().format('YYYY-MM-DD'))) {
+      this.today = moment().format('YYYY-MM-DD');
       return;
     }
 
-    this.today = moment().format("YYYY-MM-DD");
+    this.today = moment().format('YYYY-MM-DD');
     const totalWords = await this.calcTotalWords();
     const totalCharacters = await this.calcTotalCharacters();
     const totalSentences = await this.calcTotalSentences();
@@ -119,12 +119,12 @@ export default class StatsManager {
     const currentCitations = getCitationCount(text);
     const currentFootnotes = getFootnoteCount(text);
     const currentPages = getPageCount(text, this.plugin.settings.pageWords);
-    
+
     if (
       this.vaultStats.history.hasOwnProperty(this.today) &&
-      this.today === moment().format("YYYY-MM-DD")
+      this.today === moment().format('YYYY-MM-DD')
     ) {
-      let modFiles = this.vaultStats.modifiedFiles;
+      const modFiles = this.vaultStats.modifiedFiles;
 
       if (modFiles.hasOwnProperty(fileName)) {
         this.vaultStats.history[this.today].totalWords +=
@@ -139,7 +139,7 @@ export default class StatsManager {
           currentSentences - modFiles[fileName].citations.current;
         this.vaultStats.history[this.today].totalPages +=
           currentPages - modFiles[fileName].pages.current;
-         
+
         modFiles[fileName].words.current = currentWords;
         modFiles[fileName].characters.current = currentCharacters;
         modFiles[fileName].sentences.current = currentSentences;
@@ -176,35 +176,35 @@ export default class StatsManager {
       }
 
       const words = Object.values(modFiles)
-        .map((counts) =>
-          Math.max(0, counts.words.current - counts.words.initial)
-        )
-        .reduce((a, b) => a + b, 0);
+          .map((counts) =>
+            Math.max(0, counts.words.current - counts.words.initial),
+          )
+          .reduce((a, b) => a + b, 0);
       const characters = Object.values(modFiles)
-        .map((counts) =>
-          Math.max(0, counts.characters.current - counts.characters.initial)
-        )
-        .reduce((a, b) => a + b, 0);
+          .map((counts) =>
+            Math.max(0, counts.characters.current - counts.characters.initial),
+          )
+          .reduce((a, b) => a + b, 0);
       const sentences = Object.values(modFiles)
-        .map((counts) =>
-          Math.max(0, counts.sentences.current - counts.sentences.initial)
-        )
-        .reduce((a, b) => a + b, 0);
+          .map((counts) =>
+            Math.max(0, counts.sentences.current - counts.sentences.initial),
+          )
+          .reduce((a, b) => a + b, 0);
 
       const footnotes = Object.values(modFiles)
-        .map((counts) =>
-          Math.max(0, counts.footnotes.current - counts.footnotes.initial)
-        )
-        .reduce((a, b) => a + b, 0);
+          .map((counts) =>
+            Math.max(0, counts.footnotes.current - counts.footnotes.initial),
+          )
+          .reduce((a, b) => a + b, 0);
       const citations = Object.values(modFiles)
-        .map((counts) =>
-          Math.max(0, counts.citations.current - counts.citations.initial)
-        ).reduce((a, b) => a + b, 0);
+          .map((counts) =>
+            Math.max(0, counts.citations.current - counts.citations.initial),
+          ).reduce((a, b) => a + b, 0);
       const pages = Object.values(modFiles)
-        .map((counts) =>
-          Math.max(0, counts.pages.current - counts.pages.initial)
-        )
-        .reduce((a, b) => a + b, 0);
+          .map((counts) =>
+            Math.max(0, counts.pages.current - counts.pages.initial),
+          )
+          .reduce((a, b) => a + b, 0);
 
       this.vaultStats.history[this.today].words = words;
       this.vaultStats.history[this.today].characters = characters;
@@ -224,7 +224,7 @@ export default class StatsManager {
     if (!this.vaultStats) return;
     if (
       this.vaultStats.history.hasOwnProperty(this.today) &&
-      this.today === moment().format("YYYY-MM-DD")
+      this.today === moment().format('YYYY-MM-DD')
     ) {
       const todayHist: Day = this.vaultStats.history[this.today];
       todayHist.totalWords = await this.calcTotalWords();
@@ -245,7 +245,7 @@ export default class StatsManager {
     const files = this.vault.getFiles();
     for (const i in files) {
       const file = files[i];
-      if (file.extension === "md") {
+      if (file.extension === 'md') {
         words += getWordCount(await this.vault.cachedRead(file));
       }
     }
@@ -258,7 +258,7 @@ export default class StatsManager {
     const files = this.vault.getFiles();
     for (const i in files) {
       const file = files[i];
-      if (file.extension === "md") {
+      if (file.extension === 'md') {
         characters += getCharacterCount(await this.vault.cachedRead(file));
       }
     }
@@ -270,20 +270,20 @@ export default class StatsManager {
     const files = this.vault.getFiles();
     for (const i in files) {
       const file = files[i];
-      if (file.extension === "md") {
+      if (file.extension === 'md') {
         sentence += getSentenceCount(await this.vault.cachedRead(file));
       }
     }
     return sentence;
   }
-  
+
   private async calcTotalPages(): Promise<number> {
     let pages = 0;
 
     const files = this.vault.getFiles();
     for (const i in files) {
       const file = files[i];
-      if (file.extension === "md") {
+      if (file.extension === 'md') {
         pages += getPageCount(await this.vault.cachedRead(file), this.plugin.settings.pageWords);
       }
     }
@@ -296,7 +296,7 @@ export default class StatsManager {
     const files = this.vault.getFiles();
     for (const i in files) {
       const file = files[i];
-      if (file.extension === "md") {
+      if (file.extension === 'md') {
         footnotes += getFootnoteCount(await this.vault.cachedRead(file));
       }
     }
@@ -308,7 +308,7 @@ export default class StatsManager {
     const files = this.vault.getFiles();
     for (const i in files) {
       const file = files[i];
-      if (file.extension === "md") {
+      if (file.extension === 'md') {
         citations += getCitationCount(await this.vault.cachedRead(file));
       }
     }
@@ -357,7 +357,7 @@ export default class StatsManager {
     if (!this.vaultStats) return await this.calcTotalSentences();
     return this.vaultStats.history[this.today].totalSentences;
   }
-  
+
   public async getTotalFootnotes(): Promise<number> {
     if (!this.vaultStats) return await this.calcTotalFootnotes();
     return this.vaultStats.history[this.today].totalFootnotes;
