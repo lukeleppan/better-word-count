@@ -4,9 +4,15 @@
   "description": "Counts the words of selected text in the editor.",
   "main": "main.js",
   "scripts": {
-    "lint": "eslint . --ext .ts && svelte-check --tsconfig ./tsconfig.json",
+    "lint": "eslint ./src/**/*.ts && svelte-check --tsconfig ./tsconfig.json",
     "dev": "rollup --config rollup.config.js -w",
-    "build": "rollup --config rollup.config.js"
+    "build": "rollup --config rollup.config.js",
+    "compile": "tsc",
+    "fix": "eslint . --ext .ts --fix",
+    "clean": "gts clean",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run lint"
   },
   "repository": {
     "url": "https://github.com/lukeleppan/better-word-count.git"
@@ -28,11 +34,12 @@
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-typescript": "^6.0.0",
     "@tsconfig/svelte": "^1.0.13",
-    "@types/node": "^14.17.3",
+    "@types/node": "^14.11.2",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.57.0",
-    "eslint-config-google": "^0.14.0",
-    "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
+    "eslint-plugin-jsdoc": "^40.1.1",
+    "gts": "^3.1.1",
+    "obsidian": "^1.1.1",
     "rollup": "^2.32.1",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-svelte": "^7.1.0",

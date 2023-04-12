@@ -1,11 +1,16 @@
 {
-  "extends": "@tsconfig/svelte/tsconfig.json",
+  "extends": [
+    "./node_modules/gts/tsconfig-google.json",
+    "@tsconfig/svelte/tsconfig.json"
+  ],
   "compilerOptions": {
     "baseUrl": ".",
     "types": [
       "node",
       "svelte"
     ],
+    "rootDir": ".",
+    "outDir": "build",
     "inlineSources": true,
     "allowJs": true,
     "noImplicitAny": true,
@@ -13,8 +18,8 @@
     "importHelpers": true
   },
   "include": [
-    "**/*.ts",
-    "**/*.svelte"
+    "src/**/*.ts",
+    "srv/**/*.svelte"
   ],
   "exclude": [
     "node_modules/*"

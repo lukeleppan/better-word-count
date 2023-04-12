@@ -1,5 +1,5 @@
-import { MetricCounter, MetricType } from "src/settings/Settings";
-import type BetterWordCount from "../main";
+import {MetricCounter, MetricType} from 'src/settings/Settings';
+import type BetterWordCount from '../main';
 import {
   getWordCount,
   getCharacterCount,
@@ -8,8 +8,8 @@ import {
   getFootnoteCount,
   getPageCount,
   cleanComments,
-} from "src/utils/StatUtils";
-import { debounce } from "obsidian";
+} from 'src/utils/StatUtils';
+import {debounce} from 'obsidian';
 
 export default class StatusBar {
   private statusBarEl: HTMLElement;
@@ -25,10 +25,10 @@ export default class StatusBar {
       false
     );
 
-    this.statusBarEl.classList.add("mod-clickable");
-    this.statusBarEl.setAttribute("aria-label", "!!!");
-    this.statusBarEl.setAttribute("aria-label-position", "top");
-    this.statusBarEl.addEventListener("click", (ev: MouseEvent) =>
+    this.statusBarEl.classList.add('mod-clickable');
+    this.statusBarEl.setAttribute('aria-label', '!!!');
+    this.statusBarEl.setAttribute('aria-label-position', 'top');
+    this.statusBarEl.addEventListener('click', (ev: MouseEvent) =>
       this.onClick(ev)
     );
   }
@@ -43,7 +43,7 @@ export default class StatusBar {
 
   async updateStatusBar(text: string) {
     const sb = this.plugin.settings.statusBar;
-    let display = "";
+    let display = '';
 
     if (!this.plugin.settings.countComments) {
       text = cleanComments(text);
@@ -158,7 +158,8 @@ export default class StatusBar {
       } else if (metric.counter === MetricCounter.pages) {
         switch (metric.type) {
           case MetricType.file:
-            display = display + getPageCount(text, this.plugin.settings.pageWords);
+            display =
+              display + getPageCount(text, this.plugin.settings.pageWords);
             break;
           case MetricType.daily:
             display =
@@ -209,7 +210,7 @@ export default class StatusBar {
 
   async updateAltBar() {
     const ab = this.plugin.settings.altBar;
-    let display = "";
+    let display = '';
 
     for (let i = 0; i < ab.length; i++) {
       const sbItem = ab[i];
@@ -278,7 +279,7 @@ export default class StatusBar {
             break;
         }
       } else if (metric.counter === MetricCounter.footnotes) {
-      switch (metric.type) {
+        switch (metric.type) {
           case MetricType.file:
             display = display + 0;
             break;
@@ -286,14 +287,14 @@ export default class StatusBar {
             display =
               display +
               (this.plugin.settings.collectStats
-              ? this.plugin.statsManager.getDailyFootnotes()
-                   : 0);
+                ? this.plugin.statsManager.getDailyFootnotes()
+                : 0);
             break;
           case MetricType.total:
             display =
               display +
               (await (this.plugin.settings.collectStats
-              ? this.plugin.statsManager.getTotalFootnotes()
+                ? this.plugin.statsManager.getTotalFootnotes()
                 : 0));
             break;
         }

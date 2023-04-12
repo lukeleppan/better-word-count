@@ -1,0 +1,16 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "./node_modules/gts/"
+  ],
+  "rules": {
+    "node/no-unpublished-import": 0
+  }
+}
