@@ -6,8 +6,7 @@ import {
   TextComponent,
 } from 'obsidian';
 import type BetterWordCount from 'src/main';
-import {addStatusBarSettings} from './StatusBarSettings';
-import Settings from './Settings.svelte';
+import Settings from './settings.svelte';
 
 export default class BWCSettingsTab extends PluginSettingTab {
   constructor(app: App, private plugin: BetterWordCount) {
@@ -20,7 +19,7 @@ export default class BWCSettingsTab extends PluginSettingTab {
 
     new Settings({
       target: containerEl,
-      props: {},
+      props: {plugin: this.plugin},
     });
 
     // General Settings

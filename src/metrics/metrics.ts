@@ -233,4 +233,8 @@ export class MetricsManager {
 
     return value;
   }
+
+  change(text: string) {
+    this.updateMetrics();
+  }
 }

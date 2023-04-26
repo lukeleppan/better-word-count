@@ -1,14 +1,8 @@
 {
-  "extends": [
-    "./node_modules/gts/tsconfig-google.json",
-    "@tsconfig/svelte/tsconfig.json"
-  ],
+  "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "types": [
-      "node",
-      "svelte"
-    ],
+    "types": ["node", "svelte"],
     "rootDir": ".",
     "outDir": "build",
     "inlineSources": true,
@@ -17,11 +11,6 @@
     "moduleResolution": "node",
     "importHelpers": true
   },
-  "include": [
-    "src/**/*.ts",
-    "srv/**/*.svelte"
-  ],
-  "exclude": [
-    "node_modules/*"
-  ]
+  "include": ["src/**/*.ts", "srv/**/*.svelte"],
+  "exclude": ["node_modules/*"]
 }
