@@ -9,6 +9,7 @@ import {
   DEFAULT_SETTINGS,
 } from "src/settings/Settings";
 import { settingsStore } from "./utils/SvelteStores";
+import { handleFileMenu } from "./utils/FileMenu";
 
 export default class BetterWordCount extends Plugin {
   public settings: BetterWordCountSettings;
@@ -66,6 +67,13 @@ export default class BetterWordCount extends Plugin {
       this.app.vault.on("delete", async () => {
         if (!this.settings.collectStats) return;
         await this.statsManager.recalcTotals();
+      })
+    );
+
+    // Register a new action for right clicking on folders
+    this.registerEvent(
+      this.app.workspace.on("file-menu", (menu, file, source) => {
+        handleFileMenu(menu, file, source, this);
       })
     );
   }
