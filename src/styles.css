@@ -27,8 +27,9 @@ details.bwc-sb-item-setting {
   display: inline-flex;
   font-size: var(--font-ui-smaller);
   font-weight: var(--font-normal);
+  line-height: 1;
   margin: calc(-1 * var(--size-4-1)) 0 calc(-1 * var(--size-4-1)) var(--size-4-2);
-  padding: var(--size-4-1) var(--size-4-2);
+  padding: var(--size-2-3) var(--size-4-2);
   position: relative;
   top: calc(-1 * var(--size-2-1));
 }
