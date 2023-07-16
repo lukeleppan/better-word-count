@@ -19,3 +19,20 @@ details.bwc-sb-item-setting {
 .bwc-status-bar-settings-title {
   margin-bottom: 0px;
 }
+
+.bwc-section-count {
+  background: var(--background-secondary);
+  border-radius: var(--tag-radius);
+  color: var(--text-muted);
+  display: inline-flex;
+  font-size: var(--font-ui-smaller);
+  font-weight: var(--font-normal);
+  margin: calc(-1 * var(--size-4-1)) 0 calc(-1 * var(--size-4-1)) var(--size-4-2);
+  padding: var(--size-4-1) var(--size-4-2);
+  position: relative;
+  top: calc(-1 * var(--size-2-1));
+}
+
+.cm-active .bwc-section-count {
+  display: none;
+}
