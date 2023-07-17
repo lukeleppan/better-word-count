@@ -31,6 +31,7 @@ details.bwc-sb-item-setting {
   line-height: 1;
   margin: calc(-1 * var(--size-2-3)) 0 calc(-1 * var(--size-2-3)) var(--size-4-2);
   padding: var(--size-2-3) var(--size-4-2);
+  pointer-events: none;
   position: relative;
   top: -3px;
 }
