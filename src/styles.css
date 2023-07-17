@@ -20,20 +20,17 @@ details.bwc-sb-item-setting {
   margin-bottom: 0px;
 }
 
-.bwc-section-count {
+.bwc-section-count > span:last-of-type::after {
   background: var(--background-secondary);
   border-radius: var(--tag-radius);
   color: var(--text-muted);
+  content: var(--word-count);
   display: inline-flex;
   font-size: var(--font-ui-smaller);
   font-weight: var(--font-normal);
   line-height: 1;
-  margin: calc(-1 * var(--size-4-1)) 0 calc(-1 * var(--size-4-1)) var(--size-4-2);
+  margin: calc(-1 * var(--size-2-3)) 0 calc(-1 * var(--size-2-3)) var(--size-4-2);
   padding: var(--size-2-3) var(--size-4-2);
   position: relative;
-  top: calc(-1 * var(--size-2-1));
-}
-
-.cm-active .bwc-section-count {
-  display: none;
+  top: -3px;
 }

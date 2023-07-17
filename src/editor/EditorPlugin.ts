@@ -40,8 +40,7 @@ class StatusBarEditorPlugin implements PluginValue {
     // When selecting text with Shift+Home the userEventType is undefined.
     // This is probably a bug in codemirror, for the time being doing an explict check
     // for the type allows us to update the stats for the selection.
-    const userEventTypeUndefined =
-      tr.annotation(Transaction.userEvent) === undefined;
+    const userEventTypeUndefined = tr.annotation(Transaction.userEvent) === undefined;
 
     if (
       (tr.isUserEvent("select") || userEventTypeUndefined) &&
@@ -171,36 +170,6 @@ function getHeadingRanges(app: App, file: TFile, end: number) {
   return ranges;
 }
 
-class SectionWidget extends WidgetType {
-  plugin: BetterWordCount;
-  range: HeadingRange;
-  count: number;
-  selfCount?: number;
-
-  constructor(plugin: BetterWordCount, range: HeadingRange, count: number, selfCount?: number) {
-    super();
-    this.plugin = plugin;
-    this.range = range;
-    this.count = count;
-    this.selfCount = selfCount;
-  }
-
-  eq(widget: this): boolean {
-    return this.range.from === widget.range.from && this.range.to === widget.range.to;
-  }
-
-  getDisplayText() {
-    if (this.selfCount) {
-      return `${this.selfCount} / ${this.count}`;
-    }
-    return this.count.toString();
-  }
-
-  toDOM() {
-    return createSpan({ cls: "bwc-section-count", text: this.getDisplayText() });
-  }
-}
-
 class SectionWordCountEditorPlugin implements PluginValue {
   decorations: DecorationSet;
 
@@ -244,7 +213,7 @@ class SectionWordCountEditorPlugin implements PluginValue {
     for (let i = 0; i < headingRanges.length; i++) {
       const heading = headingRanges[i];
       const next = headingRanges[i + 1];
-      const targetPos = heading.heading.position.end.offset;
+      const targetPos = heading.heading.position.start.offset;
 
       const totalCount = getWordCount(view.state.doc.slice(heading.from, heading.to).toString());
       let selfCount: number;
@@ -259,9 +228,11 @@ class SectionWordCountEditorPlugin implements PluginValue {
       b.add(
         targetPos,
         targetPos,
-        Decoration.widget({
-          side: 0,
-          widget: new SectionWidget(plugin, heading, totalCount, selfCount),
+        Decoration.line({
+          attributes: {
+            class: "bwc-section-count",
+            style: `--word-count: "${selfCount ? `${selfCount} / ${totalCount}` : totalCount.toString()}"`,
+          },
         })
       );
     }
