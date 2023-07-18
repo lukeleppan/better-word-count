@@ -86,12 +86,10 @@ interface SectionCountData {
 }
 
 class SectionWidget extends WidgetType {
-  plugin: BetterWordCount;
   data: SectionCountData;
 
-  constructor(plugin: BetterWordCount, data: SectionCountData) {
+  constructor(data: SectionCountData) {
     super();
-    this.plugin = plugin;
     this.data = data;
   }
 
@@ -298,7 +296,7 @@ class SectionWordCountEditorPlugin implements PluginValue {
         data.pos,
         Decoration.widget({
           side: 1,
-          widget: new SectionWidget(plugin, data),
+          widget: new SectionWidget(data),
         })
       );
     }
