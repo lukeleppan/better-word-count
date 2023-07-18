@@ -20,7 +20,7 @@ details.bwc-sb-item-setting {
   margin-bottom: 0px;
 }
 
-.bwc-section-count > span:last-of-type::after {
+.bwc-section-count {
   background: var(--background-secondary);
   border-radius: var(--tag-radius);
   color: var(--text-muted);
