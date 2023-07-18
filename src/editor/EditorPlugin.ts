@@ -1,4 +1,4 @@
-import { RangeSetBuilder, StateEffect, StateField, Transaction } from "@codemirror/state";
+import { Line, RangeSetBuilder, StateEffect, StateField, Text, Transaction } from "@codemirror/state";
 import {
   ViewUpdate,
   PluginValue,
@@ -8,7 +8,6 @@ import {
   Decoration,
   WidgetType,
 } from "@codemirror/view";
-import { App, HeadingCache, TFile, editorInfoField } from "obsidian";
 import type BetterWordCount from "src/main";
 import { getWordCount } from "src/utils/StatUtils";
 
@@ -78,125 +77,111 @@ class StatusBarEditorPlugin implements PluginValue {
 
 export const statusBarEditorPlugin = ViewPlugin.fromClass(StatusBarEditorPlugin);
 
-interface HeadingRange {
-  heading: HeadingCache;
-  from: number;
-  to: number;
+interface SectionCountData {
+  line: number;
+  level: number;
+  self: number;
+  total: number;
+  pos: number;
 }
 
-function getHeadingRanges(app: App, file: TFile, end: number) {
-  const fileCache = app.metadataCache.getFileCache(file);
+class SectionWidget extends WidgetType {
+  plugin: BetterWordCount;
+  data: SectionCountData;
 
-  if (!fileCache?.headings?.length) return null;
-
-  const nestedHeadings: HeadingCache[] = [];
-  const ranges: HeadingRange[] = [];
-
-  for (let i = 0, len = fileCache.headings.length; i < len; i++) {
-    const heading = fileCache.headings[i];
-    const lastHeading = nestedHeadings.last();
-    const isLast = i === len - 1;
-
-    if (!lastHeading || heading.level > lastHeading.level) {
-      // First heading, or traversing to higher level heading (eg ## -> ###)
-      nestedHeadings.push(heading);
-    } else if (heading.level === lastHeading.level) {
-      // Two headings of the same level
-      const nestedHeading = nestedHeadings.pop();
-      ranges.push({
-        heading: nestedHeading,
-        from: nestedHeading.position.end.offset,
-        to: heading.position.start.offset,
-      });
-      nestedHeadings.push(heading);
-    } else if (heading.level < lastHeading.level) {
-      // Traversing to lower level heading (eg. ### -> ##)
-      for (let j = nestedHeadings.length - 1; j >= 0; j--) {
-        const nestedHeading = nestedHeadings[j];
-
-        if (heading.level < nestedHeading.level) {
-          // Continue traversing to lower level heading
-          const nestedHeading = nestedHeadings.pop();
-          ranges.push({
-            heading: nestedHeading,
-            from: nestedHeading.position.end.offset,
-            to: heading.position.start.offset,
-          });
-          if (j === 0) {
-            nestedHeadings.push(heading);
-          }
-          continue;
-        }
-
-        if (heading.level === nestedHeading.level) {
-          // Stop because we found an equal level heading
-          const nestedHeading = nestedHeadings.pop();
-          ranges.push({
-            heading: nestedHeading,
-            from: nestedHeading.position.end.offset,
-            to: heading.position.start.offset,
-          });
-          nestedHeadings.push(heading);
-          break;
-        }
-
-        if (heading.level > nestedHeading.level) {
-          // Stop because we found an higher level heading
-          nestedHeadings.push(heading);
-          break;
-        }
-      }
-    } else if (isLast) {
-      // Final heading
-      nestedHeadings.push(heading);
-    }
-
-    if (isLast) {
-      // Flush the remaining headings
-      let nestedHeading: HeadingCache;
-      while ((nestedHeading = nestedHeadings.pop())) {
-        ranges.push({
-          heading: nestedHeading,
-          from: nestedHeading.position.end.offset,
-          to: end,
-        });
-      }
-    }
+  constructor(plugin: BetterWordCount, data: SectionCountData) {
+    super();
+    this.plugin = plugin;
+    this.data = data;
   }
 
-  // Sort the headings in the order they appear in the document
-  ranges.sort((a, b) => a.from - b.from);
+  eq(widget: this): boolean {
+    const { pos, self, total } = this.data;
+    return pos === widget.data.pos && self === widget.data.self && total === widget.data.total;
+  }
 
-  return ranges;
+  getDisplayText() {
+    const { self, total } = this.data;
+    if (self && self !== total) {
+      return `${self} / ${total}`;
+    }
+    return total.toString();
+  }
+
+  toDOM() {
+    return createSpan({ cls: "bwc-section-count", text: this.getDisplayText() });
+  }
 }
 
 class SectionWordCountEditorPlugin implements PluginValue {
   decorations: DecorationSet;
+  lineCounts: any[] = [];
 
   constructor(view: EditorView) {
+    const plugin = view.state.field(pluginField);
+    if (!plugin.settings.displaySectionCounts) {
+      this.decorations = Decoration.none;
+      return;
+    }
+
+    this.calculateLineCounts(view.state.doc);
     this.decorations = this.mkDeco(view);
+  }
+
+  calculateLineCounts(doc: Text) {
+    for (let index = 0; index < doc.lines; index++) {
+      const line = doc.line(index + 1);
+      this.lineCounts.push(getWordCount(line.text));
+    }
   }
 
   update(update: ViewUpdate) {
     const plugin = update.view.state.field(pluginField);
-    if (!plugin.settings.displaySectionCounts) {
-      if (this.decorations.size) {
-        // Clear out any decorations
-        this.decorations = this.mkDeco(update.view);
-      }
+    const { displaySectionCounts } = plugin.settings;
+    let didSettingsChange = false;
 
+    if (this.lineCounts.length && !displaySectionCounts) {
+      this.lineCounts = [];
+      this.decorations = Decoration.none;
       return;
+    } else if (!this.lineCounts.length && displaySectionCounts) {
+      didSettingsChange = true;
+      this.calculateLineCounts(update.startState.doc);
     }
 
-    update.transactions.forEach((tr) => {
-      if (tr.effects.some((e) => e.is(metadataUpdated))) {
-        // If metadata has been updated, rebuild the decorations
-        this.decorations = this.mkDeco(update.view);
-      } else if (update.docChanged) {
-        // Otherwise just update their positions
-        this.decorations = this.decorations.map(tr.changes);
-      }
-    });
+    if (update.docChanged) {
+      const startDoc = update.startState.doc;
+      let tempDoc = startDoc;
+
+      update.changes.iterChanges((fromA, toA, fromB, toB, text) => {
+        const from = fromB;
+        const to = fromB + (toA - fromA);
+        const nextTo = from + text.length;
+
+        const fromLine = tempDoc.lineAt(from);
+        const toLine = tempDoc.lineAt(to);
+
+        tempDoc = tempDoc.replace(fromB, fromB + (toA - fromA), text);
+
+        const fromLineNext = tempDoc.lineAt(from);
+        const toLineNext = tempDoc.lineAt(nextTo);
+
+        const lines: any[] = [];
+
+        for (let i = fromLineNext.number; i <= toLineNext.number; i++) {
+          lines.push(getWordCount(tempDoc.line(i).text));
+        }
+
+        const spliceStart = fromLine.number - 1;
+        const spliceLen = toLine.number - fromLine.number + 1;
+
+        this.lineCounts.splice(spliceStart, spliceLen, ...lines);
+      });
+    }
+
+    if (update.docChanged || update.viewportChanged || didSettingsChange) {
+      this.decorations = this.mkDeco(update.view);
+    }
   }
 
   mkDeco(view: EditorView) {
@@ -204,35 +189,116 @@ class SectionWordCountEditorPlugin implements PluginValue {
     const b = new RangeSetBuilder<Decoration>();
     if (!plugin.settings.displaySectionCounts) return b.finish();
 
-    const { app, file } = view.state.field(editorInfoField);
-    if (!file) return b.finish();
+    const getHeaderLevel = (line: Line) => {
+      const match = line.text.match(/^(#+)[ \t]/);
+      return match ? match[1].length : null;
+    };
 
-    const headingRanges = getHeadingRanges(app, file, view.state.doc.length - 1);
-    if (!headingRanges?.length) return b.finish();
+    const doc = view.state.doc;
+    const lineCount = doc.lines;
+    const sectionCounts: SectionCountData[] = [];
+    const nested: SectionCountData[] = [];
 
-    for (let i = 0; i < headingRanges.length; i++) {
-      const heading = headingRanges[i];
-      const next = headingRanges[i + 1];
-      const targetPos = heading.heading.position.start.offset;
+    for (const { from } of view.visibleRanges) {
+      const lineStart = doc.lineAt(from);
 
-      const totalCount = getWordCount(view.state.doc.slice(heading.from, heading.to).toString());
-      let selfCount: number;
+      for (let i = lineStart.number, len = lineCount; i <= len; i++) {
+        let line: Line;
+        if (i === lineStart.number) line = lineStart;
+        else line = doc.line(i);
 
-      if (next && next.heading.level > heading.heading.level) {
-        const betweenCount = getWordCount(
-          view.state.doc.slice(heading.from, next.heading.position.start.offset).toString()
-        );
-        if (betweenCount) selfCount = betweenCount;
+        const level = getHeaderLevel(line);
+        const prevHeading = nested.last();
+        if (level) {
+          if (!prevHeading || level > prevHeading.level) {
+            nested.push({
+              line: i,
+              level,
+              self: 0,
+              total: 0,
+              pos: line.to,
+            });
+          } else if (prevHeading.level === level) {
+            const nestedHeading = nested.pop();
+            sectionCounts.push(nestedHeading);
+            nested.push({
+              line: i,
+              level,
+              self: 0,
+              total: 0,
+              pos: line.to,
+            });
+          } else if (prevHeading.level > level) {
+            // Traversing to lower level heading (eg. ### -> ##)
+            for (let j = nested.length - 1; j >= 0; j--) {
+              const nestedHeading = nested[j];
+
+              if (level < nestedHeading.level) {
+                // Continue traversing to lower level heading
+                const nestedHeading = nested.pop();
+                sectionCounts.push(nestedHeading);
+                if (j === 0) {
+                  nested.push({
+                    line: i,
+                    level,
+                    self: 0,
+                    total: 0,
+                    pos: line.to,
+                  });
+                }
+                continue;
+              }
+
+              if (level === nestedHeading.level) {
+                // Stop because we found an equal level heading
+                const nestedHeading = nested.pop();
+                sectionCounts.push(nestedHeading);
+                nested.push({
+                  line: i,
+                  level,
+                  self: 0,
+                  total: 0,
+                  pos: line.to,
+                });
+                break;
+              }
+
+              if (level > nestedHeading.level) {
+                // Stop because we found an higher level heading
+                nested.push({
+                  line: i,
+                  level,
+                  self: 0,
+                  total: 0,
+                  pos: line.to,
+                });
+                break;
+              }
+            }
+          }
+        } else if (nested.length) {
+          const count = this.lineCounts[i - 1];
+          for (const heading of nested) {
+            if (heading === prevHeading) {
+              heading.self += count;
+            }
+            heading.total += count;
+          }
+        }
       }
+    }
 
+    if (nested.length) sectionCounts.push(...nested);
+
+    sectionCounts.sort((a, b) => a.line - b.line);
+
+    for (const data of sectionCounts) {
       b.add(
-        targetPos,
-        targetPos,
-        Decoration.line({
-          attributes: {
-            class: "bwc-section-count",
-            style: `--word-count: "${selfCount ? `${selfCount} / ${totalCount}` : totalCount.toString()}"`,
-          },
+        data.pos,
+        data.pos,
+        Decoration.widget({
+          side: 1,
+          widget: new SectionWidget(plugin, data),
         })
       );
     }
@@ -241,7 +307,7 @@ class SectionWordCountEditorPlugin implements PluginValue {
   }
 }
 
-export const metadataUpdated = StateEffect.define<void>();
+export const settingsChanged = StateEffect.define<void>();
 export const sectionWordCountEditorPlugin = ViewPlugin.fromClass(SectionWordCountEditorPlugin, {
   decorations: (v) => v.decorations,
 });

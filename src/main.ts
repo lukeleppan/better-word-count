@@ -1,18 +1,15 @@
-import { MarkdownView, Plugin, TFile, WorkspaceLeaf } from "obsidian";
+import { MarkdownView, Plugin, WorkspaceLeaf } from "obsidian";
 import BetterWordCountSettingsTab from "./settings/SettingsTab";
 import StatsManager from "./stats/StatsManager";
 import StatusBar from "./status/StatusBar";
 import type { EditorView } from "@codemirror/view";
 import {
-  metadataUpdated,
+  settingsChanged,
   pluginField,
   sectionWordCountEditorPlugin,
   statusBarEditorPlugin,
 } from "./editor/EditorPlugin";
-import {
-  BetterWordCountSettings,
-  DEFAULT_SETTINGS,
-} from "src/settings/Settings";
+import { BetterWordCountSettings, DEFAULT_SETTINGS } from "src/settings/Settings";
 import { settingsStore } from "./utils/SvelteStores";
 
 export default class BetterWordCount extends Plugin {
@@ -46,24 +43,17 @@ export default class BetterWordCount extends Plugin {
     this.statusBar = new StatusBar(statusBarEl, this);
 
     // Handle the Editor Plugins
-    this.registerEditorExtension([
-      pluginField.init(() => this),
-      statusBarEditorPlugin,
-      sectionWordCountEditorPlugin,
-    ]);
+    this.registerEditorExtension([pluginField.init(() => this), statusBarEditorPlugin, sectionWordCountEditorPlugin]);
 
     this.registerEvent(
-      this.app.workspace.on(
-        "active-leaf-change",
-        async (leaf: WorkspaceLeaf) => {
-          if (leaf.view.getViewType() !== "markdown") {
-            this.statusBar.updateAltBar();
-          }
-
-          if (!this.settings.collectStats) return;
-          await this.statsManager.recalcTotals();
+      this.app.workspace.on("active-leaf-change", async (leaf: WorkspaceLeaf) => {
+        if (leaf.view.getViewType() !== "markdown") {
+          this.statusBar.updateAltBar();
         }
-      )
+
+        if (!this.settings.collectStats) return;
+        await this.statsManager.recalcTotals();
+      })
     );
 
     this.registerEvent(
@@ -72,30 +62,10 @@ export default class BetterWordCount extends Plugin {
         await this.statsManager.recalcTotals();
       })
     );
-
-    this.registerEvent(
-      this.app.metadataCache.on("changed", (file) => {
-        this.dispatchMetadataUpdate(file);
-      })
-    );
   }
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
-  }
-
-  dispatchMetadataUpdate(file: TFile) {
-    if (!this.settings.displaySectionCounts) return;
-    this.app.workspace.getLeavesOfType("markdown").forEach((leaf) => {
-      if (leaf.view instanceof MarkdownView && leaf.view.file === file) {
-        const cm = (leaf.view.editor as any).cm as EditorView;
-        if (cm.dispatch) {
-          cm.dispatch({
-            effects: [metadataUpdated.of()],
-          });
-        }
-      }
-    });
   }
 
   onDisplaySectionCountsChange() {
@@ -104,7 +74,7 @@ export default class BetterWordCount extends Plugin {
         const cm = (leaf.view.editor as any).cm as EditorView;
         if (cm.dispatch) {
           cm.dispatch({
-            effects: [metadataUpdated.of()],
+            effects: [settingsChanged.of()],
           });
         }
       }
