@@ -192,65 +192,52 @@ class SectionWordCountEditorPlugin implements PluginValue {
       return match ? match[1].length : null;
     };
 
+    // Start processing from the beginning of the first visible range
+    const { from } = view.visibleRanges[0];
     const doc = view.state.doc;
+    const lineStart = doc.lineAt(from);
     const lineCount = doc.lines;
     const sectionCounts: SectionCountData[] = [];
     const nested: SectionCountData[] = [];
 
-    for (const { from } of view.visibleRanges) {
-      const lineStart = doc.lineAt(from);
+    for (let i = lineStart.number; i <= lineCount; i++) {
+      let line: Line;
+      if (i === lineStart.number) line = lineStart;
+      else line = doc.line(i);
 
-      for (let i = lineStart.number, len = lineCount; i <= len; i++) {
-        let line: Line;
-        if (i === lineStart.number) line = lineStart;
-        else line = doc.line(i);
+      const level = getHeaderLevel(line);
+      const prevHeading = nested.last();
+      if (level) {
+        if (!prevHeading || level > prevHeading.level) {
+          // The first heading or moving to a higher level eg. ## -> ###
+          nested.push({
+            line: i,
+            level,
+            self: 0,
+            total: 0,
+            pos: line.to,
+          });
+        } else if (prevHeading.level === level) {
+          // Same level as the previous heading
+          const nestedHeading = nested.pop();
+          sectionCounts.push(nestedHeading);
+          nested.push({
+            line: i,
+            level,
+            self: 0,
+            total: 0,
+            pos: line.to,
+          });
+        } else if (prevHeading.level > level) {
+          // Traversing to lower level heading (eg. ### -> ##)
+          for (let j = nested.length - 1; j >= 0; j--) {
+            const nestedHeading = nested[j];
 
-        const level = getHeaderLevel(line);
-        const prevHeading = nested.last();
-        if (level) {
-          if (!prevHeading || level > prevHeading.level) {
-            nested.push({
-              line: i,
-              level,
-              self: 0,
-              total: 0,
-              pos: line.to,
-            });
-          } else if (prevHeading.level === level) {
-            const nestedHeading = nested.pop();
-            sectionCounts.push(nestedHeading);
-            nested.push({
-              line: i,
-              level,
-              self: 0,
-              total: 0,
-              pos: line.to,
-            });
-          } else if (prevHeading.level > level) {
-            // Traversing to lower level heading (eg. ### -> ##)
-            for (let j = nested.length - 1; j >= 0; j--) {
-              const nestedHeading = nested[j];
-
-              if (level < nestedHeading.level) {
-                // Continue traversing to lower level heading
-                const nestedHeading = nested.pop();
-                sectionCounts.push(nestedHeading);
-                if (j === 0) {
-                  nested.push({
-                    line: i,
-                    level,
-                    self: 0,
-                    total: 0,
-                    pos: line.to,
-                  });
-                }
-                continue;
-              }
-
-              if (level === nestedHeading.level) {
-                // Stop because we found an equal level heading
-                const nestedHeading = nested.pop();
-                sectionCounts.push(nestedHeading);
+            if (level < nestedHeading.level) {
+              // Continue traversing to lower level heading
+              const nestedHeading = nested.pop();
+              sectionCounts.push(nestedHeading);
+              if (j === 0) {
                 nested.push({
                   line: i,
                   level,
@@ -258,30 +245,45 @@ class SectionWordCountEditorPlugin implements PluginValue {
                   total: 0,
                   pos: line.to,
                 });
-                break;
               }
+              continue;
+            }
 
-              if (level > nestedHeading.level) {
-                // Stop because we found an higher level heading
-                nested.push({
-                  line: i,
-                  level,
-                  self: 0,
-                  total: 0,
-                  pos: line.to,
-                });
-                break;
-              }
+            if (level === nestedHeading.level) {
+              // Stop because we found an equal level heading
+              const nestedHeading = nested.pop();
+              sectionCounts.push(nestedHeading);
+              nested.push({
+                line: i,
+                level,
+                self: 0,
+                total: 0,
+                pos: line.to,
+              });
+              break;
+            }
+
+            if (level > nestedHeading.level) {
+              // Stop because we found an higher level heading
+              nested.push({
+                line: i,
+                level,
+                self: 0,
+                total: 0,
+                pos: line.to,
+              });
+              break;
             }
           }
-        } else if (nested.length) {
-          const count = this.lineCounts[i - 1];
-          for (const heading of nested) {
-            if (heading === prevHeading) {
-              heading.self += count;
-            }
-            heading.total += count;
+        }
+      } else if (nested.length) {
+        // Not in a heading, so add the word count of the line to the headings containing this line
+        const count = this.lineCounts[i - 1];
+        for (const heading of nested) {
+          if (heading === prevHeading) {
+            heading.self += count;
           }
+          heading.total += count;
         }
       }
     }
