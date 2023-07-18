@@ -192,6 +192,8 @@ class SectionWordCountEditorPlugin implements PluginValue {
       return match ? match[1].length : null;
     };
 
+    if (!view.visibleRanges.length) return b.finish();
+
     // Start processing from the beginning of the first visible range
     const { from } = view.visibleRanges[0];
     const doc = view.state.doc;
