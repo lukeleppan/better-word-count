@@ -45,7 +45,7 @@ export default class StatusBar {
     const sb = this.plugin.settings.statusBar;
     let display = "";
 
-    if (!this.plugin.settings.countComments) {
+    if (this.plugin.settings.countComments) {
       text = cleanComments(text);
     }
 
