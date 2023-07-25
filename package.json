@@ -20,7 +20,7 @@
   "license": "MIT",
   "devDependencies": {
     "@codemirror/commands": "^6.1.2",
-    "@codemirror/language": "^6.3.0",
+    "@codemirror/language": "https://github.com/lishid/cm-language",
     "@codemirror/search": "^6.2.2",
     "@codemirror/state": "^6.1.2",
     "@codemirror/text": "^0.19.6",
