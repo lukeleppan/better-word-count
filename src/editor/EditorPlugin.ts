@@ -1,4 +1,4 @@
-import { Line, RangeSetBuilder, StateEffect, StateField, Text, Transaction } from "@codemirror/state";
+import { EditorState, Line, RangeSetBuilder, StateEffect, StateField, Transaction } from "@codemirror/state";
 import {
   ViewUpdate,
   PluginValue,
@@ -8,8 +8,10 @@ import {
   Decoration,
   WidgetType,
 } from "@codemirror/view";
+import { syntaxTree } from "@codemirror/language";
 import type BetterWordCount from "src/main";
 import { getWordCount } from "src/utils/StatUtils";
+import { MATCH_COMMENT, MATCH_HTML_COMMENT } from "src/constants";
 
 export const pluginField = StateField.define<BetterWordCount>({
   create() {
@@ -111,6 +113,7 @@ class SectionWidget extends WidgetType {
   }
 }
 
+const mdCommentRe = /%%/g;
 class SectionWordCountEditorPlugin implements PluginValue {
   decorations: DecorationSet;
   lineCounts: any[] = [];
@@ -122,20 +125,40 @@ class SectionWordCountEditorPlugin implements PluginValue {
       return;
     }
 
-    this.calculateLineCounts(view.state.doc);
+    this.calculateLineCounts(view.state, plugin);
     this.decorations = this.mkDeco(view);
   }
 
-  calculateLineCounts(doc: Text) {
-    for (let index = 0; index < doc.lines; index++) {
-      const line = doc.line(index + 1);
-      this.lineCounts.push(getWordCount(line.text));
+  calculateLineCounts(state: EditorState, plugin: BetterWordCount) {
+    const stripComments = plugin.settings.countComments;
+    let docStr = state.doc.toString();
+
+    if (stripComments) {
+      // Strip out comments, but preserve new lines for accurate positioning data
+      const preserveNl = (match: string, offset: number, str: string) => {
+        let output = '';
+        for (let i = offset, len = offset + match.length; i < len; i++) {
+          if (/[\r\n]/.test(str[i])) {
+            output += str[i];
+          }
+        }
+        return output;
+      }
+  
+      docStr = docStr.replace(MATCH_COMMENT, preserveNl).replace(MATCH_HTML_COMMENT, preserveNl);
+    }
+
+    const lines = docStr.split(state.facet(EditorState.lineSeparator) || /\r\n?|\n/)
+
+    for (let i = 0, len = lines.length; i < len; i++) {
+      let line = lines[i];
+      this.lineCounts.push(getWordCount(line));
     }
   }
 
   update(update: ViewUpdate) {
     const plugin = update.view.state.field(pluginField);
-    const { displaySectionCounts } = plugin.settings;
+    const { displaySectionCounts, countComments: stripComments } = plugin.settings;
     let didSettingsChange = false;
 
     if (this.lineCounts.length && !displaySectionCounts) {
@@ -144,37 +167,70 @@ class SectionWordCountEditorPlugin implements PluginValue {
       return;
     } else if (!this.lineCounts.length && displaySectionCounts) {
       didSettingsChange = true;
-      this.calculateLineCounts(update.startState.doc);
+      this.calculateLineCounts(update.startState, plugin);
     }
 
     if (update.docChanged) {
       const startDoc = update.startState.doc;
+
       let tempDoc = startDoc;
+      let editStartLine = Infinity;
+      let editEndLine = -Infinity;
 
       update.changes.iterChanges((fromA, toA, fromB, toB, text) => {
         const from = fromB;
         const to = fromB + (toA - fromA);
         const nextTo = from + text.length;
-
+        
         const fromLine = tempDoc.lineAt(from);
         const toLine = tempDoc.lineAt(to);
 
         tempDoc = tempDoc.replace(fromB, fromB + (toA - fromA), text);
 
-        const fromLineNext = tempDoc.lineAt(from);
-        const toLineNext = tempDoc.lineAt(nextTo);
-
+        const nextFromLine = tempDoc.lineAt(from);
+        const nextToLine = tempDoc.lineAt(nextTo);
         const lines: any[] = [];
 
-        for (let i = fromLineNext.number; i <= toLineNext.number; i++) {
+        for (let i = nextFromLine.number; i <= nextToLine.number; i++) {
           lines.push(getWordCount(tempDoc.line(i).text));
         }
 
         const spliceStart = fromLine.number - 1;
         const spliceLen = toLine.number - fromLine.number + 1;
 
+        editStartLine = Math.min(editStartLine, spliceStart);
+        editEndLine = Math.max(editEndLine, spliceStart + (nextToLine.number - nextFromLine.number + 1));
+
         this.lineCounts.splice(spliceStart, spliceLen, ...lines);
       });
+
+      // Filter out any counts associated with comments in the lines that were edited
+      if (stripComments) {
+        const tree = syntaxTree(update.state);
+        for (let i = editStartLine; i < editEndLine; i++) {
+          const line = update.state.doc.line(i + 1);
+          let newLine = '';
+          let pos = 0;
+          let foundComment = false;
+  
+          tree.iterate({
+            enter(node) { 
+              if (node.name && /comment/.test(node.name)) {
+                foundComment = true;
+                newLine += line.text.substring(pos, node.from - line.from);
+                pos = node.to - line.from;
+              }
+            },
+            from: line.from,
+            to: line.to,
+          });
+  
+          if (foundComment) {
+            newLine += line.text.substring(pos);
+            this.lineCounts[i] = getWordCount(newLine);
+          }
+        }
+      }
     }
 
     if (update.docChanged || update.viewportChanged || didSettingsChange) {
