@@ -31,6 +31,8 @@ This plugin is the same as the built-in **Word Count** plugin, except when you s
   - Helped solve the performance issue.
 - @Noxellar
   - Fixed alt bar spacing issue.
+- @mgmeyers
+  - Added word counts to section titles.
 
 ### Special Thanks
 
