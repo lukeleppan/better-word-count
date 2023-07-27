@@ -38,6 +38,17 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
         });
       });
     new Setting(containerEl)
+      .setName("Display Section Word Count")
+      .setDesc("Turn on if you want to display section word counts next to headings.")
+      .addToggle((cb: ToggleComponent) => {
+        cb.setValue(this.plugin.settings.displaySectionCounts);
+        cb.onChange(async (value: boolean) => {
+          this.plugin.settings.displaySectionCounts = value;
+          this.plugin.onDisplaySectionCountsChange();
+          await this.plugin.saveSettings();
+        });
+      });
+    new Setting(containerEl)
       .setName("Page Word Count")
       .setDesc("Set how many words count as one \"page\"")
       .addText((text: TextComponent) => {
