@@ -3,6 +3,8 @@
   "version": "0.10.0",
   "description": "Counts the words of selected text in the editor.",
   "main": "main.js",
+  "types": "src/api.d.ts",
+  "files": ["src/api.d.ts"],
   "scripts": {
     "lint": "svelte-check && eslint . --ext .ts",
     "dev": "rollup --config rollup.config.js -w",

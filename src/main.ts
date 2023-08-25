@@ -11,11 +11,13 @@ import {
 } from "./editor/EditorPlugin";
 import { BetterWordCountSettings, DEFAULT_SETTINGS } from "src/settings/Settings";
 import { settingsStore } from "./utils/SvelteStores";
+import BetterWordCountApi from "src/api/api";
 
 export default class BetterWordCount extends Plugin {
   public settings: BetterWordCountSettings;
   public statusBar: StatusBar;
   public statsManager: StatsManager;
+  public api: BetterWordCountApi = new BetterWordCountApi(this);
 
   async onunload(): Promise<void> {
     this.statsManager = null;
