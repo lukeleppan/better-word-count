@@ -1,6 +1,5 @@
 import { debounce, Debouncer, TFile, Vault, Workspace } from "obsidian";
 import type BetterWordCount from "../main";
-// import { STATS_FILE } from "../constants";
 import type { Day, VaultStatistics } from "./Stats";
 import moment from "moment";
 import {
