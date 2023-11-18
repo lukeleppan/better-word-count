@@ -1,6 +1,7 @@
 import { debounce, Debouncer, TFile, Vault, Workspace } from "obsidian";
 import type BetterWordCount from "../main";
-import { STATS_FILE } from "../constants";
+// import { this.plugin.settings.statsPath } from "../constants";
+// import { BetterWordCountSettings } from "src/settings/Settings";
 import type { Day, VaultStatistics } from "./Stats";
 import moment from "moment";
 import {
@@ -45,24 +46,24 @@ export default class StatsManager {
       }
     });
 
-    this.vault.adapter.exists(STATS_FILE).then(async (exists) => {
+    this.vault.adapter.exists(this.plugin.settings.statsPath).then(async (exists) => {
       if (!exists) {
         const vaultSt: VaultStatistics = {
           history: {},
           modifiedFiles: {},
         };
-        await this.vault.adapter.write(STATS_FILE, JSON.stringify(vaultSt));
-        this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
+        await this.vault.adapter.write(this.plugin.settings.statsPath, JSON.stringify(vaultSt));
+        this.vaultStats = JSON.parse(await this.vault.adapter.read(this.plugin.settings.statsPath));
       } else {
-        this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
+        this.vaultStats = JSON.parse(await this.vault.adapter.read(this.plugin.settings.statsPath));
         if (!this.vaultStats.hasOwnProperty("history")) {
           const vaultSt: VaultStatistics = {
             history: {},
             modifiedFiles: {},
           };
-          await this.vault.adapter.write(STATS_FILE, JSON.stringify(vaultSt));
+          await this.vault.adapter.write(this.plugin.settings.statsPath, JSON.stringify(vaultSt));
         }
-        this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
+        this.vaultStats = JSON.parse(await this.vault.adapter.read(this.plugin.settings.statsPath));
       }
 
       await this.updateToday();
@@ -70,7 +71,7 @@ export default class StatsManager {
   }
 
   async update(): Promise<void> {
-    this.vault.adapter.write(STATS_FILE, JSON.stringify(this.vaultStats));
+    this.vault.adapter.write(this.plugin.settings.statsPath, JSON.stringify(this.vaultStats));
   }
 
   async updateToday(): Promise<void> {

@@ -61,6 +61,22 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
       });
     });
 
+    // Advanced Settings
+    containerEl.createEl("h4", { text: "Advanced Settings" });
+    new Setting(containerEl)
+      .setName("Vault Stats File Path")
+      .setDesc("Reload Required for change to take effect. The location of the vault statistics file, relative to the vault root.")
+      .addText((text: TextComponent) => {
+        text.inputEl.type = "string";
+        text.setPlaceholder(".obsidian/vault-stats.json");
+        text.setValue(this.plugin.settings.statsPath);
+        text.onChange(async (value: string) => {
+          this.plugin.settings.statsPath = value;
+          await this.plugin.saveSettings();
+      });
+    });
+
+
     // Status Bar Settings
     addStatusBarSettings(this.plugin, containerEl);
   }
