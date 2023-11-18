@@ -67,9 +67,8 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
       .setName("Vault Stats File Path")
       .setDesc("Reload Required for change to take effect. The location of the vault statistics file, relative to the vault root.")
       .addText((text: TextComponent) => {
-        text.inputEl.type = "string";
         text.setPlaceholder(".obsidian/vault-stats.json");
-        text.setValue(this.plugin.settings.statsPath);
+        text.setValue(this.plugin.settings.statsPath.toString());
         text.onChange(async (value: string) => {
           this.plugin.settings.statsPath = value;
           await this.plugin.saveSettings();
