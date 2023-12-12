@@ -11,3 +11,5 @@ export const MATCH_HTML_COMMENT = new RegExp(
 );
 export const MATCH_COMMENT = new RegExp("%%[\\s\\S]*?(?!%%)[\\s\\S]+?%%", "g");
 export const MATCH_PARAGRAPH = new RegExp("\n([^\n]+)\n", "g");
+export const MATCH_CODEBLOCK = new RegExp("```(?!mermaid)[\\s\\S]*?(?!```)[\\s\\S]+?```", "g")
+export const MATCH_MERMAID = new RegExp("```mermaid[\\s\\S]*?(?!```)[\\s\\S]+?```", "g")

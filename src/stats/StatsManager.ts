@@ -10,7 +10,7 @@ import {
   getWordCount,
   getCitationCount,
   getFootnoteCount,
-  cleanComments,
+  cleanComments, cleanCodeblocks, cleanMermaid,
 } from "../utils/StatUtils";
 
 export default class StatsManager {
@@ -111,6 +111,12 @@ export default class StatsManager {
   public async change(text: string) {
     if (this.plugin.settings.countComments) {
       text = cleanComments(text);
+    }
+    if (this.plugin.settings.countCodeblocks) {
+      text = cleanCodeblocks(text);
+    }
+    if (this.plugin.settings.countMermaid) {
+      text = cleanMermaid(text);
     }
     const fileName = this.workspace.getActiveFile().path;
     const currentWords = getWordCount(text);
