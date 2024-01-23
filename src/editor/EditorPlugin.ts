@@ -113,7 +113,6 @@ class SectionWidget extends WidgetType {
   }
 }
 
-const mdCommentRe = /%%/g;
 class SectionWordCountEditorPlugin implements PluginValue {
   decorations: DecorationSet;
   lineCounts: any[] = [];
@@ -243,7 +242,11 @@ class SectionWordCountEditorPlugin implements PluginValue {
     const b = new RangeSetBuilder<Decoration>();
     if (!plugin.settings.displaySectionCounts) return b.finish();
 
+    const tree = syntaxTree(view.state);
     const getHeaderLevel = (line: Line) => {
+      const token = tree.resolve(line.from, 1);
+      if (/code-?block|math/.test(token?.type?.name)) return null;
+      
       const match = line.text.match(/^(#+)[ \t]/);
       return match ? match[1].length : null;
     };
