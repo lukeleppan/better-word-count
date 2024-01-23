@@ -4,7 +4,9 @@
   "description": "Counts the words of selected text in the editor.",
   "main": "main.js",
   "types": "src/api.d.ts",
-  "files": ["src/api.d.ts"],
+  "files": [
+    "src/api.d.ts"
+  ],
   "scripts": {
     "lint": "svelte-check && eslint . --ext .ts",
     "dev": "rollup --config rollup.config.js -w",
@@ -25,7 +27,6 @@
     "@codemirror/language": "https://github.com/lishid/cm-language",
     "@codemirror/search": "^6.2.2",
     "@codemirror/state": "^6.1.2",
-    "@codemirror/text": "^0.19.6",
     "@codemirror/view": "^6.4.0",
     "@rollup/plugin-commonjs": "^15.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
