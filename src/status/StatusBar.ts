@@ -164,14 +164,14 @@ export default class StatusBar {
             display =
               display +
               (this.plugin.settings.collectStats
-                ? this.plugin.statsManager.getDailyPages()
+                ? this.plugin.statsManager.getDailyPages().toFixed(1)
                 : 0);
             break;
           case MetricType.total:
             display =
               display +
               (await (this.plugin.settings.collectStats
-                ? this.plugin.statsManager.getTotalPages()
+                ? (await this.plugin.statsManager.getTotalPages()).toFixed(1)
                 : 0));
             break;
         }
