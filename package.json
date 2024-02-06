@@ -1,8 +1,12 @@
 {
   "name": "better-word-count",
-  "version": "0.9.6",
+  "version": "0.10.1",
   "description": "Counts the words of selected text in the editor.",
   "main": "main.js",
+  "types": "src/api.d.ts",
+  "files": [
+    "src/api.d.ts"
+  ],
   "scripts": {
     "lint": "svelte-check && eslint . --ext .ts",
     "dev": "rollup --config rollup.config.js -w",
@@ -20,10 +24,9 @@
   "license": "MIT",
   "devDependencies": {
     "@codemirror/commands": "^6.1.2",
-    "@codemirror/language": "^6.3.0",
+    "@codemirror/language": "https://github.com/lishid/cm-language",
     "@codemirror/search": "^6.2.2",
     "@codemirror/state": "^6.1.2",
-    "@codemirror/text": "^0.19.6",
     "@codemirror/view": "^6.4.0",
     "@rollup/plugin-commonjs": "^15.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
@@ -41,6 +44,7 @@
     "typescript": "^4.0.3"
   },
   "dependencies": {
+    "chart.js": "^4.3.0",
     "svelte": "^3.38.3",
     "svelte-icons": "^2.1.0"
   }

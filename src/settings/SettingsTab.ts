@@ -18,7 +18,7 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Collect Statistics")
       .setDesc(
-        "Reload Required for change to take effect. Turn on to start collecting daily statistics of your writing. Stored in the vault-stats.json file in the .obsidian of your vault. This is required for counts of the day as well as total counts."
+        "Reload required for change to take effect. Turn on to start collecting daily statistics of your writing. Stored in the path specified below. This is required for counts of the day as well as total counts."
       )
       .addToggle((cb: ToggleComponent) => {
         cb.setValue(this.plugin.settings.collectStats);
@@ -38,6 +38,17 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
         });
       });
     new Setting(containerEl)
+      .setName("Display Section Word Count")
+      .setDesc("Turn on if you want to display section word counts next to headings.")
+      .addToggle((cb: ToggleComponent) => {
+        cb.setValue(this.plugin.settings.displaySectionCounts);
+        cb.onChange(async (value: boolean) => {
+          this.plugin.settings.displaySectionCounts = value;
+          this.plugin.onDisplaySectionCountsChange();
+          await this.plugin.saveSettings();
+        });
+      });
+    new Setting(containerEl)
       .setName("Page Word Count")
       .setDesc("Set how many words count as one \"page\"")
       .addText((text: TextComponent) => {
@@ -49,6 +60,21 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
           await this.plugin.saveSettings();
       });
     });
+
+    // Advanced Settings
+    containerEl.createEl("h4", { text: "Advanced Settings" });
+    new Setting(containerEl)
+      .setName("Vault Stats File Path")
+      .setDesc("Reload required for change to take effect. The location of the vault statistics file, relative to the vault root.")
+      .addText((text: TextComponent) => {
+        text.setPlaceholder(".obsidian/vault-stats.json");
+        text.setValue(this.plugin.settings.statsPath.toString());
+        text.onChange(async (value: string) => {
+          this.plugin.settings.statsPath = value;
+          await this.plugin.saveSettings();
+      });
+    });
+
 
     // Status Bar Settings
     addStatusBarSettings(this.plugin, containerEl);

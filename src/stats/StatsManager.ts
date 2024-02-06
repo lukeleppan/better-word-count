@@ -1,6 +1,5 @@
 import { debounce, Debouncer, TFile, Vault, Workspace } from "obsidian";
 import type BetterWordCount from "../main";
-import { STATS_FILE } from "../constants";
 import type { Day, VaultStatistics } from "./Stats";
 import moment from "moment";
 import {
@@ -45,24 +44,24 @@ export default class StatsManager {
       }
     });
 
-    this.vault.adapter.exists(STATS_FILE).then(async (exists) => {
+    this.vault.adapter.exists(this.plugin.settings.statsPath).then(async (exists) => {
       if (!exists) {
         const vaultSt: VaultStatistics = {
           history: {},
           modifiedFiles: {},
         };
-        await this.vault.adapter.write(STATS_FILE, JSON.stringify(vaultSt));
-        this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
+        await this.vault.adapter.write(this.plugin.settings.statsPath, JSON.stringify(vaultSt));
+        this.vaultStats = JSON.parse(await this.vault.adapter.read(this.plugin.settings.statsPath));
       } else {
-        this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
+        this.vaultStats = JSON.parse(await this.vault.adapter.read(this.plugin.settings.statsPath));
         if (!this.vaultStats.hasOwnProperty("history")) {
           const vaultSt: VaultStatistics = {
             history: {},
             modifiedFiles: {},
           };
-          await this.vault.adapter.write(STATS_FILE, JSON.stringify(vaultSt));
+          await this.vault.adapter.write(this.plugin.settings.statsPath, JSON.stringify(vaultSt));
         }
-        this.vaultStats = JSON.parse(await this.vault.adapter.read(STATS_FILE));
+        this.vaultStats = JSON.parse(await this.vault.adapter.read(this.plugin.settings.statsPath));
       }
 
       await this.updateToday();
@@ -70,7 +69,7 @@ export default class StatsManager {
   }
 
   async update(): Promise<void> {
-    this.vault.adapter.write(STATS_FILE, JSON.stringify(this.vaultStats));
+    this.vault.adapter.write(this.plugin.settings.statsPath, JSON.stringify(this.vaultStats));
   }
 
   async updateToday(): Promise<void> {
@@ -119,7 +118,7 @@ export default class StatsManager {
     const currentCitations = getCitationCount(text);
     const currentFootnotes = getFootnoteCount(text);
     const currentPages = getPageCount(text, this.plugin.settings.pageWords);
-    
+
     if (
       this.vaultStats.history.hasOwnProperty(this.today) &&
       this.today === moment().format("YYYY-MM-DD")
@@ -139,7 +138,7 @@ export default class StatsManager {
           currentSentences - modFiles[fileName].citations.current;
         this.vaultStats.history[this.today].totalPages +=
           currentPages - modFiles[fileName].pages.current;
-         
+
         modFiles[fileName].words.current = currentWords;
         modFiles[fileName].characters.current = currentCharacters;
         modFiles[fileName].sentences.current = currentSentences;
@@ -276,7 +275,7 @@ export default class StatsManager {
     }
     return sentence;
   }
-  
+
   private async calcTotalPages(): Promise<number> {
     let pages = 0;
 
@@ -327,7 +326,6 @@ export default class StatsManager {
     return this.vaultStats.history[this.today].sentences;
   }
 
-
   public getDailyFootnotes(): number {
     return this.vaultStats.history[this.today].footnotes;
   }
@@ -357,7 +355,7 @@ export default class StatsManager {
     if (!this.vaultStats) return await this.calcTotalSentences();
     return this.vaultStats.history[this.today].totalSentences;
   }
-  
+
   public async getTotalFootnotes(): Promise<number> {
     if (!this.vaultStats) return await this.calcTotalFootnotes();
     return this.vaultStats.history[this.today].totalFootnotes;

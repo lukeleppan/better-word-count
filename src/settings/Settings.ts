@@ -42,6 +42,8 @@ export interface BetterWordCountSettings {
   countComments: boolean;
   collectStats: boolean;
   pageWords: number;
+  displaySectionCounts: boolean;
+  statsPath: string;
 }
 
 export const DEFAULT_SETTINGS: BetterWordCountSettings = {
@@ -75,5 +77,7 @@ export const DEFAULT_SETTINGS: BetterWordCountSettings = {
   ],
   countComments: false,
   collectStats: false,
+  displaySectionCounts: false,
   pageWords: 300,
+  statsPath: ".obsidian/vault-stats.json",
 };
