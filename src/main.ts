@@ -16,13 +16,36 @@ import { handleFileMenu } from "./utils/FileMenu";
 
 export default class BetterWordCount extends Plugin {
   public settings: BetterWordCountSettings;
-  public statusBar: StatusBar;
+
+  protected statusBars = new WeakMap<Window,StatusBar>();
+
+  public get statusBar(): StatusBar {
+    const win = activeWindow;
+    if (this.statusBars.has(win)) return this.statusBars.get(win);
+    const cls = "plugin-" + this.manifest.id.toLowerCase().replace(/[^_a-zA-Z0-9-]/, "-");
+    const container = win.document.querySelector("body > .app-container");
+    const statusBar = container.find(".status-bar") || container.createDiv("status-bar");
+    const statusBarEl = statusBar.find(".status-bar-item."+cls) ||
+        statusBar.createDiv(`status-bar-item ${cls.replace(/\./g,' ')}`);
+    const sb = new StatusBar(statusBarEl as HTMLElement, this);
+    sb.register(() => {
+      statusBarEl.detach();
+      if (win !== window) setTimeout(
+          () => {
+            if (!statusBar.hasChildNodes()) statusBar.detach();
+          }, 500   // allow for other unload operations to finish
+      )
+    });
+    this.addChild(sb);
+    this.statusBars.set(win, sb);
+    return sb;
+  };
+
   public statsManager: StatsManager;
   public api: BetterWordCountApi = new BetterWordCountApi(this);
 
   async onunload(): Promise<void> {
     this.statsManager = null;
-    this.statusBar = null;
   }
 
   async onload() {
@@ -40,10 +63,6 @@ export default class BetterWordCount extends Plugin {
     if (this.settings.collectStats) {
       this.statsManager = new StatsManager(this.app.vault, this.app.workspace, this);
     }
-
-    // Handle Status Bar
-    let statusBarEl = this.addStatusBarItem();
-    this.statusBar = new StatusBar(statusBarEl, this);
 
     // Handle the Editor Plugins
     this.registerEditorExtension([pluginField.init(() => this), statusBarEditorPlugin, sectionWordCountEditorPlugin]);

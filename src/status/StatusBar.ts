@@ -9,14 +9,15 @@ import {
   getPageCount,
   cleanComments,
 } from "src/utils/StatUtils";
-import { debounce } from "obsidian";
+import { Component, debounce } from "obsidian";
 
-export default class StatusBar {
+export default class StatusBar extends Component {
   private statusBarEl: HTMLElement;
   private plugin: BetterWordCount;
   public debounceStatusBarUpdate;
 
   constructor(statusBarEl: HTMLElement, plugin: BetterWordCount) {
+    super();
     this.statusBarEl = statusBarEl;
     this.plugin = plugin;
     this.debounceStatusBarUpdate = debounce(
@@ -33,6 +34,13 @@ export default class StatusBar {
     );
   }
 
+  onload() {
+    this.registerEvent(this.plugin.app.workspace.on("window-close", (_, win) => {
+      // Discard when owning window is closed
+      if (this.statusBarEl.win === win) this.plugin.removeChild(this);
+    }))
+  }
+
   onClick(ev: MouseEvent) {
     ev;
   }
@@ -42,6 +50,8 @@ export default class StatusBar {
   }
 
   async updateStatusBar(text: string) {
+    if (text == null) return; // new window still loading
+
     const sb = this.plugin.settings.statusBar;
     let display = "";
 
