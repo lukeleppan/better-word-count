@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, ToggleComponent, TextComponent } from "obsidian";
+import { App, PluginSettingTab, Setting, ToggleComponent, TextComponent, Notice } from "obsidian";
 import type BetterWordCount from "src/main";
 import { addStatusBarSettings } from "./StatusBarSettings";
 
@@ -53,13 +53,18 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
       .setDesc("Set how many words count as one \"page\"")
       .addText((text: TextComponent) => {
         text.inputEl.type = "number";
-        text.setPlaceholder("300");
-        text.setValue(this.plugin.settings.pageWords.toString());
-        text.onChange(async (value: string) => {
-          this.plugin.settings.pageWords = parseInt(value);
-          await this.plugin.saveSettings();
+        text
+          .setPlaceholder("300")
+          .setValue(String(this.plugin.settings.pageWords))
+          .onChange(async (value: string) => {
+            if (!isNaN(Number(value))) {
+              this.plugin.settings.pageWords = parseInt(value);
+              this.plugin.saveSettings();
+            } else {
+              new Notice("Please Input a Valid Number");
+            }
+          });
       });
-    });
 
     // Advanced Settings
     containerEl.createEl("h4", { text: "Advanced Settings" });
@@ -67,14 +72,14 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
       .setName("Vault Stats File Path")
       .setDesc("Reload required for change to take effect. The location of the vault statistics file, relative to the vault root.")
       .addText((text: TextComponent) => {
-        text.setPlaceholder(".obsidian/vault-stats.json");
-        text.setValue(this.plugin.settings.statsPath.toString());
-        text.onChange(async (value: string) => {
-          this.plugin.settings.statsPath = value;
-          await this.plugin.saveSettings();
+        text
+          .setPlaceholder(".obsidian/vault-stats.json")
+          .setValue(this.plugin.settings.statsPath)
+          .onChange(async (value: string) => {
+            this.plugin.settings.statsPath = value ?? ".obsidian/vault-stats.json";
+            await this.plugin.saveSettings();
+          });
       });
-    });
-
 
     // Status Bar Settings
     addStatusBarSettings(this.plugin, containerEl);
