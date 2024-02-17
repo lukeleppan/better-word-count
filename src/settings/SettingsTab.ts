@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, ToggleComponent, TextComponent, Notice } from "obsidian";
+import { App, PluginSettingTab, Setting, ToggleComponent, TextComponent } from "obsidian";
 import type BetterWordCount from "src/main";
 import { addStatusBarSettings } from "./StatusBarSettings";
 
