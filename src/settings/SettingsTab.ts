@@ -61,7 +61,8 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
               this.plugin.settings.pageWords = parseInt(value);
               this.plugin.saveSettings();
             } else {
-              new Notice("Please Input a Valid Number");
+              this.plugin.settings.pageWords = 300;
+              this.plugin.saveSettings();
             }
           });
       });
