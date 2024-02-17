@@ -57,13 +57,12 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
           .setPlaceholder("300")
           .setValue(String(this.plugin.settings.pageWords))
           .onChange(async (value: string) => {
-            if (!isNaN(Number(value))) {
+            if (value) {
               this.plugin.settings.pageWords = parseInt(value);
-              this.plugin.saveSettings();
             } else {
               this.plugin.settings.pageWords = 300;
-              this.plugin.saveSettings();
             }
+            await this.plugin.saveSettings();
           });
       });
 
@@ -79,11 +78,10 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
           .onChange(async (value: string) => {
             if (value) {
               this.plugin.settings.statsPath = value;
-              await this.plugin.saveSettings();
             } else {
               this.plugin.settings.statsPath = ".obsidian/vault-stats.json"
-              await this.plugin.saveSettings();
             }
+            await this.plugin.saveSettings();
           });
       });
 
