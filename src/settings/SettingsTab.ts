@@ -76,8 +76,13 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
           .setPlaceholder(".obsidian/vault-stats.json")
           .setValue(this.plugin.settings.statsPath)
           .onChange(async (value: string) => {
-            this.plugin.settings.statsPath = value ?? ".obsidian/vault-stats.json";
-            await this.plugin.saveSettings();
+            if (value) {
+              this.plugin.settings.statsPath = value;
+              await this.plugin.saveSettings();
+            } else {
+              this.plugin.settings.statsPath = ".obsidian/vault-stats.json"
+              await this.plugin.saveSettings();
+            }
           });
       });
 
