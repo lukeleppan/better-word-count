@@ -44,6 +44,14 @@ export function getCitationCount(text: string): number {
   return uniqueCitations;
 }
 
+export function getLineCount(text: string): number {
+  const lines: number = (
+    (text || "").match(/[^\r\n]+/g) || []
+  ).length;
+
+  return lines;
+}
+
 export function getSentenceCount(text: string): number {
   const sentences: number = (
     (text || "").match(
