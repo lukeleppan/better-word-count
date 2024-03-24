@@ -73,6 +73,11 @@ export default class BetterWordCountApi {
     return this.plugin.statsManager.getDailyCharacters();
   }
 
+  public getDailyLines(): number | null {
+    if (!this.plugin.statsManager) return null;
+    return this.plugin.statsManager.getDailyLines();
+  }
+
   public getDailySentences(): number | null {
     if (!this.plugin.statsManager) return null;
     return this.plugin.statsManager.getDailySentences();
@@ -106,6 +111,11 @@ export default class BetterWordCountApi {
   public async getTotalCharacters(): Promise<number | null> {
     if (!this.plugin.statsManager) return null;
     return this.plugin.statsManager.getTotalCharacters();
+  }
+
+  public async getTotalLines(): Promise<number | null> {
+    if (!this.plugin.statsManager) return null;
+    return this.plugin.statsManager.getTotalLines();
   }
 
   public async getTotalSentences(): Promise<number | null> {

@@ -16,6 +16,8 @@
           return "Words in Note"
         case MetricCounter.characters:
           return "Chars in Note"
+        case MetricCounter.lines:
+          return "Lines in Note"
         case MetricCounter.sentences:
           return "Sentences in Note"
         case MetricCounter.footnotes:
@@ -33,6 +35,8 @@
           return "Daily Words"
         case MetricCounter.characters:
           return "Daily Chars"
+        case MetricCounter.lines:
+          return "Daily Lines" 
         case MetricCounter.sentences:
           return "Daily Sentences" 
         case MetricCounter.footnotes:
@@ -50,6 +54,8 @@
           return "Total Words"
         case MetricCounter.characters:
           return "Total Chars"
+        case MetricCounter.lines:
+          return "Total Lines"
         case MetricCounter.sentences:
           return "Total Sentences"
         case MetricCounter.footnotes:
@@ -198,6 +204,7 @@
             <option value>Select Option</option>
             <option value={MetricCounter.words}>Words</option>
             <option value={MetricCounter.characters}>Characters</option>
+            <option value={MetricCounter.lines}>Lines</option>
             <option value={MetricCounter.sentences}>Sentences</option>
             <option value={MetricCounter.footnotes}>Footnotes</option>
             <option value={MetricCounter.citations}>Citations</option>
@@ -368,6 +375,7 @@
             <option value>Select Option</option>
             <option value={MetricCounter.words}>Words</option>
             <option value={MetricCounter.characters}>Characters</option>
+            <option value={MetricCounter.lines}>Lines</option>
             <option value={MetricCounter.sentences}>Sentences</option>
             <option value={MetricCounter.footnotes}>Footnotes</option>
             <option value={MetricCounter.citations}>Citations</option>

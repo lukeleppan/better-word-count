@@ -81,6 +81,7 @@ export default class StatsManager {
     this.today = moment().format("YYYY-MM-DD");
     const totalWords = await this.calcTotalWords();
     const totalCharacters = await this.calcTotalCharacters();
+    const totalLines = await this.calcTotalLines();
     const totalSentences = await this.calcTotalSentences();
     const totalFootnotes = await this.calcTotalFootnotes();
     const totalCitations = await this.calcTotalCitations();
@@ -89,6 +90,7 @@ export default class StatsManager {
     const newDay: Day = {
       words: 0,
       characters: 0,
+      lines: 0,
       sentences: 0,
       pages: 0,
       files: 0,
@@ -96,6 +98,7 @@ export default class StatsManager {
       citations: 0,
       totalWords: totalWords,
       totalCharacters: totalCharacters,
+      totalLines: totalLines,
       totalSentences: totalSentences,
       totalFootnotes: totalFootnotes,
       totalCitations: totalCitations,
@@ -114,6 +117,7 @@ export default class StatsManager {
     const fileName = this.workspace.getActiveFile().path;
     const currentWords = getWordCount(text);
     const currentCharacters = getCharacterCount(text);
+    const currentLines = getLineCount(text);
     const currentSentences = getSentenceCount(text);
     const currentCitations = getCitationCount(text);
     const currentFootnotes = getFootnoteCount(text);
@@ -130,6 +134,12 @@ export default class StatsManager {
           currentWords - modFiles[fileName].words.current;
         this.vaultStats.history[this.today].totalCharacters +=
           currentCharacters - modFiles[fileName].characters.current;
+        this.vaultStats.history[this.today].totalLines +=
+          currentLines - modFiles[fileName].lines.current;
+        this.vaultStats.history[this.today].totalFootnotes +=
+          currentLines - modFiles[fileName].footnotes.current;
+        this.vaultStats.history[this.today].totalCitations +=
+          currentLines - modFiles[fileName].citations.current;
         this.vaultStats.history[this.today].totalSentences +=
           currentSentences - modFiles[fileName].sentences.current;
         this.vaultStats.history[this.today].totalFootnotes +=
@@ -141,6 +151,7 @@ export default class StatsManager {
 
         modFiles[fileName].words.current = currentWords;
         modFiles[fileName].characters.current = currentCharacters;
+        modFiles[fileName].lines.current = currentLines;
         modFiles[fileName].sentences.current = currentSentences;
         modFiles[fileName].footnotes.current = currentFootnotes;
         modFiles[fileName].citations.current = currentCitations;
@@ -154,6 +165,10 @@ export default class StatsManager {
           characters: {
             initial: currentCharacters,
             current: currentCharacters,
+          },
+          lines: {
+            initial: currentLines,
+            current: currentLines,
           },
           sentences: {
             initial: currentSentences,
@@ -184,6 +199,11 @@ export default class StatsManager {
           Math.max(0, counts.characters.current - counts.characters.initial)
         )
         .reduce((a, b) => a + b, 0);
+      const lines = Object.values(modFiles)
+        .map((counts) =>
+          Math.max(0, counts.lines.current - counts.lines.initial)
+        )
+        .reduce((a, b) => a + b, 0);
       const sentences = Object.values(modFiles)
         .map((counts) =>
           Math.max(0, counts.sentences.current - counts.sentences.initial)
@@ -207,6 +227,7 @@ export default class StatsManager {
 
       this.vaultStats.history[this.today].words = words;
       this.vaultStats.history[this.today].characters = characters;
+      this.vaultStats.history[this.today].lines = lines;
       this.vaultStats.history[this.today].sentences = sentences;
       this.vaultStats.history[this.today].footnotes = footnotes;
       this.vaultStats.history[this.today].citations = citations;
@@ -228,6 +249,7 @@ export default class StatsManager {
       const todayHist: Day = this.vaultStats.history[this.today];
       todayHist.totalWords = await this.calcTotalWords();
       todayHist.totalCharacters = await this.calcTotalCharacters();
+      todayHist.totalLines = await this.calcTotalLines();
       todayHist.totalSentences = await this.calcTotalSentences();
       todayHist.totalFootnotes = await this.calcTotalFootnotes();
       todayHist.totalCitations = await this.calcTotalCitations();
@@ -262,6 +284,18 @@ export default class StatsManager {
       }
     }
     return characters;
+  }
+
+  private async calcTotalLines(): Promise<number> {
+    let sentence = 0;
+    const files = this.vault.getFiles();
+    for (const i in files) {
+      const file = files[i];
+      if (file.extension === "md") {
+        sentence += getLineCount(await this.vault.cachedRead(file));
+      }
+    }
+    return sentence;
   }
 
   private async calcTotalSentences(): Promise<number> {
@@ -322,6 +356,10 @@ export default class StatsManager {
     return this.vaultStats.history[this.today].characters;
   }
 
+  public getDailyLines(): number {
+    return this.vaultStats.history[this.today].lines;
+  }
+
   public getDailySentences(): number {
     return this.vaultStats.history[this.today].sentences;
   }
@@ -349,6 +387,11 @@ export default class StatsManager {
   public async getTotalCharacters(): Promise<number> {
     if (!this.vaultStats) return await this.calcTotalCharacters();
     return this.vaultStats.history[this.today].totalCharacters;
+  }
+
+  public async getTotalLines(): Promise<number> {
+    if (!this.vaultStats) return await this.calcTotalLines();
+    return this.vaultStats.history[this.today].totalLines;
   }
 
   public async getTotalSentences(): Promise<number> {
