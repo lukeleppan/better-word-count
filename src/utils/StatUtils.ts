@@ -8,8 +8,7 @@ export function getWordCount(text: string): number {
   const nonSpaceDelimitedWords =
     /\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u4E00-\u9FD5/.source;
 
-  const nonSpaceDelimitedWordsOther =
-    /[\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u4E00-\u9FD5]{1}/
+  const nonSpaceDelimitedWordsOther = /[\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u4E00-\u9FD5\u00B7\u2014\u2018\u2019\u201C\u201D\u2026\u3002\u3008-\u301C\uFF08-\uFF0D\uFF1A-\uFF1F\uFF61-\uFF65]{1}/
       .source;
 
   const pattern = new RegExp(
