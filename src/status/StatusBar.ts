@@ -3,6 +3,7 @@ import type BetterWordCount from "../main";
 import {
   getWordCount,
   getCharacterCount,
+  getLineCount,
   getSentenceCount,
   getCitationCount,
   getFootnoteCount,
@@ -92,6 +93,26 @@ export default class StatusBar {
               display +
               (await (this.plugin.settings.collectStats
                 ? this.plugin.statsManager.getTotalCharacters()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.lines) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + getLineCount(text);
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyLines()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalLines()
                 : 0));
             break;
         }
@@ -254,6 +275,26 @@ export default class StatusBar {
               display +
               (await (this.plugin.settings.collectStats
                 ? this.plugin.statsManager.getTotalCharacters()
+                : 0));
+            break;
+        }
+      } else if (metric.counter === MetricCounter.lines) {
+        switch (metric.type) {
+          case MetricType.file:
+            display = display + 0;
+            break;
+          case MetricType.daily:
+            display =
+              display +
+              (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getDailyLines()
+                : 0);
+            break;
+          case MetricType.total:
+            display =
+              display +
+              (await (this.plugin.settings.collectStats
+                ? this.plugin.statsManager.getTotalLines()
                 : 0));
             break;
         }

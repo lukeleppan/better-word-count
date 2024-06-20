@@ -1,6 +1,7 @@
 export enum MetricCounter {
   words,
   characters,
+  lines,
   sentences,
   footnotes,
   citations,

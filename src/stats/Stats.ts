@@ -8,6 +8,7 @@ export type History = Record<string, Day>;
 export interface Day {
   words: number;
   characters: number;
+  lines: number;
   sentences: number;
   pages: number;
   files: number;
@@ -15,6 +16,7 @@ export interface Day {
   citations: number;
   totalWords: number;
   totalCharacters: number;
+  totalLines: number;
   totalSentences: number;
   totalFootnotes: number;
   totalCitations: number;
@@ -28,6 +30,7 @@ export interface FileStat {
   citations: CountDiff;
   words: CountDiff;
   characters: CountDiff;
+  lines: CountDiff;
   sentences: CountDiff;
   pages: CountDiff;
 }
