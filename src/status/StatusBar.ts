@@ -7,7 +7,7 @@ import {
   getCitationCount,
   getFootnoteCount,
   getPageCount,
-  cleanComments,
+  cleanComments, cleanCodeblocks, cleanMermaid,
 } from "src/utils/StatUtils";
 import { debounce } from "obsidian";
 
@@ -47,6 +47,12 @@ export default class StatusBar {
 
     if (this.plugin.settings.countComments) {
       text = cleanComments(text);
+    }
+    if (this.plugin.settings.countCodeblocks) {
+      text = cleanCodeblocks(text);
+    }
+    if (this.plugin.settings.countMermaid) {
+      text = cleanMermaid(text);
     }
 
     for (let i = 0; i < sb.length; i++) {

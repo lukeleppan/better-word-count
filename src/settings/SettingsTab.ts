@@ -38,6 +38,26 @@ export default class BetterWordCountSettingsTab extends PluginSettingTab {
         });
       });
     new Setting(containerEl)
+        .setName("Don't Count Codeblocks")
+        .setDesc("Turn on if you don't want codeblocks to be counted. (Note: This does not turn off counting mermaid codeblocks)")
+        .addToggle((cb: ToggleComponent) => {
+            cb.setValue(this.plugin.settings.countCodeblocks);
+            cb.onChange(async (value: boolean) => {
+                this.plugin.settings.countCodeblocks = value;
+                await this.plugin.saveSettings();
+            });
+        });
+    new Setting(containerEl)
+        .setName("Don't Count Mermaid Diagrams")
+        .setDesc("Turn on if you don't want mermaid diagram codeblocks to be counted.")
+        .addToggle((cb: ToggleComponent) => {
+            cb.setValue(this.plugin.settings.countMermaid);
+            cb.onChange(async (value: boolean) => {
+                this.plugin.settings.countMermaid = value;
+                await this.plugin.saveSettings();
+            });
+        });
+    new Setting(containerEl)
       .setName("Display Section Word Count")
       .setDesc("Turn on if you want to display section word counts next to headings.")
       .addToggle((cb: ToggleComponent) => {
