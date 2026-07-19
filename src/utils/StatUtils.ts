@@ -1,5 +1,5 @@
 import type { Vault } from "obsidian";
-import { MATCH_HTML_COMMENT, MATCH_COMMENT } from "src/constants";
+import { MATCH_COMMENT } from "src/constants";
 
 export function getWordCount(text: string): number {
   const spaceDelimitedChars =
@@ -63,5 +63,5 @@ export function getTotalFileCount(vault: Vault): number {
 }
 
 export function cleanComments(text: string): string {
-  return text.replace(MATCH_COMMENT, "").replace(MATCH_HTML_COMMENT, "");
+  return text.replace(MATCH_COMMENT, (match) => (match.startsWith("`") ? match : ""));
 }

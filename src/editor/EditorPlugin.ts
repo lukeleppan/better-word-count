@@ -11,7 +11,7 @@ import {
 import { syntaxTree } from "@codemirror/language";
 import type BetterWordCount from "src/main";
 import { getWordCount } from "src/utils/StatUtils";
-import { MATCH_COMMENT, MATCH_HTML_COMMENT } from "src/constants";
+import { MATCH_COMMENT } from "src/constants";
 
 export const pluginField = StateField.define<BetterWordCount>({
   create() {
@@ -133,18 +133,10 @@ class SectionWordCountEditorPlugin implements PluginValue {
     let docStr = state.doc.toString();
 
     if (stripComments) {
-      // Strip out comments, but preserve new lines for accurate positioning data
-      const preserveNl = (match: string, offset: number, str: string) => {
-        let output = '';
-        for (let i = offset, len = offset + match.length; i < len; i++) {
-          if (/[\r\n]/.test(str[i])) {
-            output += str[i];
-          }
-        }
-        return output;
-      }
-  
-      docStr = docStr.replace(MATCH_COMMENT, preserveNl).replace(MATCH_HTML_COMMENT, preserveNl);
+      // Strip out comments, but preserve code and new lines for accurate positioning data
+      docStr = docStr.replace(MATCH_COMMENT, (match) =>
+        match.startsWith("`") ? match : match.replace(/[^\r\n]+/g, "")
+      );
     }
 
     const lines = docStr.split(state.facet(EditorState.lineSeparator) || /\r\n?|\n/)
